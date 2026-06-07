@@ -1,0 +1,38 @@
+---
+import '@/styles/blog.css';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  active?: 'home' | 'journey' | 'about';
+}
+
+const {
+  title,
+  description = 'Detourist — first-person field notes from the road, by Vito.',
+  active,
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="sb-chaos">
+    <a href="#main" style="position:absolute;left:-999px;">Skip to content</a>
+    <Nav active={active} />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

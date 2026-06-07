@@ -1,0 +1,34 @@
+{
+  "name": "detourist",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "test": "vitest run",
+    "import:parse": "tsx scripts/import/parse.ts",
+    "import:convert": "tsx scripts/import/convert.ts",
+    "import:validate": "tsx scripts/import/validate.ts",
+    "import:load:dry": "tsx scripts/import/load.ts --dry-run",
+    "import:load": "tsx scripts/import/load.ts"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.22.5",
+    "@sanity/image-url": "^1.1.0",
+    "astro": "^5.2.5",
+    "maplibre-gl": "^4.7.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.19.20",
+    "dotenv": "^17.4.2",
+    "node-html-parser": "^7.1.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.8"
+  }
+}

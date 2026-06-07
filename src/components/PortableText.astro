@@ -1,0 +1,86 @@
+---
+// Minimal Portable Text renderer tuned to the Detourist article design.
+// Handles standard blocks (normal / h2 / bullet list) with strong/em/link
+// marks, plus the custom block types pullQuote, tip ("Field note"), gallery
+// and inline image. The same renderer serves seed and Sanity bodies.
+import Gallery from './Gallery.astro';
+import Polaroid from './Polaroid.astro';
+import type { PortableBlock, Span, LinkMark } from '@/lib/types';
+
+interface Props {
+  blocks: PortableBlock[];
+}
+
+const { blocks } = Astro.props;
+
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Build the inline HTML for a block's spans, applying strong / em / link marks.
+function inline(children: Span[], markDefs: LinkMark[] = []): string {
+  return children
+    .map((span) => {
+      let html = esc(span.text);
+      for (const mark of span.marks ?? []) {
+        if (mark === 'strong') html = `<strong>${html}</strong>`;
+        else if (mark === 'em') html = `<em>${html}</em>`;
+        else {
+          const def = markDefs.find((d) => d._key === mark);
+          if (def?._type === 'link' && def.href) html = `<a href="${esc(def.href)}">${html}</a>`;
+        }
+      }
+      return html;
+    })
+    .join('');
+}
+
+// Group consecutive bullet items into single <ul> nodes.
+type Node = { kind: 'ul'; items: Extract<PortableBlock, { _type: 'block' }>[] } | { kind: 'block'; block: PortableBlock };
+const nodes: Node[] = [];
+for (const block of blocks) {
+  if (block._type === 'block' && block.listItem === 'bullet') {
+    const last = nodes[nodes.length - 1];
+    if (last && last.kind === 'ul') last.items.push(block);
+    else nodes.push({ kind: 'ul', items: [block] });
+  } else {
+    nodes.push({ kind: 'block', block });
+  }
+}
+
+// The first plain paragraph gets the drop cap.
+const firstNormal = blocks.find(
+  (b) => b._type === 'block' && (b.style === 'normal' || !b.style) && b.listItem !== 'bullet',
+);
+---
+{nodes.map((node) => {
+  if (node.kind === 'ul') {
+    return (
+      <ul>
+        {node.items.map((it) => <li set:html={inline(it.children, it.markDefs)} />)}
+      </ul>
+    );
+  }
+  const b = node.block;
+  if (b._type === 'block') {
+    if (b.style === 'h2') {
+      return <h2 set:html={`<span class="sw">✦</span> ${inline(b.children, b.markDefs)}`} />;
+    }
+    if (b.style === 'blockquote') {
+      return <p class="pull" set:html={inline(b.children, b.markDefs)} />;
+    }
+    return <p class={b === firstNormal ? 'dropcap' : undefined} set:html={inline(b.children, b.markDefs)} />;
+  }
+  if (b._type === 'pullQuote') return <p class="pull">{b.text}</p>;
+  if (b._type === 'tip') {
+    return (
+      <div class="tip">
+        <div class="tip__k">{b.heading}</div>
+        <p>{b.text}</p>
+      </div>
+    );
+  }
+  if (b._type === 'gallery') return <Gallery heading={b.heading} note={b.note} images={b.images} />;
+  if (b._type === 'image') return <Polaroid image={b.asset} alt={b.alt} label={b.label} tint={b.tint} />;
+  return null;
+})}

@@ -1,0 +1,115 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import '@/styles/pages.css';
+import EntryCard from '@/components/EntryCard.astro';
+import JourneyMap from '@/components/JourneyMap.astro';
+import { getEntries, getMapEntries, getTrips, getCurrentTrip } from '@/lib/content';
+
+const entries = await getEntries(); // newest first
+const mapEntries = await getMapEntries();
+const trips = await getTrips();
+const current = await getCurrentTrip();
+
+const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
+const liveSlug = liveEntry?.slug;
+
+// filter tabs, ordered chronologically by trip start
+const tabTrips = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
+const countFor = (key: string) => entries.filter((e) => e.tripKey === key).length;
+---
+<Layout title="Journey — Detourist" active="journey">
+  <!-- PAGE HEADER -->
+  <section class="pagehead">
+    <div class="wrap pagehead__inner">
+      <span class="pagehead__eyebrow">Every wrong turn, written down</span>
+      <h1 class="pagehead__title">All the <span class="accent">stories</span></h1>
+      <p class="pagehead__lead">Three countries, fourteen stops, one slightly chaotic route. Pick a trip below — or wander the map and let a pin decide for you.</p>
+    </div>
+  </section>
+
+  <!-- JOURNEY MAP -->
+  <section class="section bg-paper" id="map" style="scroll-margin-top:90px;">
+    <div class="wrap">
+      <div class="jbig">
+        <div class="jbig__top">
+          <div>
+            <div class="jbig__title">The journey so far</div>
+            <p class="jbig__sub">Kuala Lumpur → Penang → Singapore → all the way to the Canadian Rockies. Tap a pin to jump to that story.</p>
+          </div>
+          <div class="jbig__legend">
+            <span class="chip chip--magenta">Malaysia</span>
+            <span class="chip chip--teal">Singapore</span>
+            <span class="chip chip--coral"><span class="live-dot"></span>&nbsp;Canada · live</span>
+          </div>
+        </div>
+
+        <JourneyMap entries={mapEntries} liveSlug={liveSlug} variant="full" />
+
+        <p class="jbig__note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            ><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16.5v.01"></path></svg
+          >
+          {mapEntries.length} stops pinned · the coral one is where I'm standing right now.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BROWSE BY TRIP + ENTRIES -->
+  <section class="section bg-paper2">
+    <div class="wrap">
+      <div class="title-block">
+        <span class="eyebrow">Browse by trip</span>
+        <h2 class="script h-lg">Pick a chapter</h2>
+      </div>
+
+      <div class="filterbar" id="filterbar">
+        <button class="ftab is-active" data-trip="all" aria-pressed="true">All stories <span class="ftab__count">{entries.length}</span></button>
+        {tabTrips.map((trip) => (
+          <button class="ftab" data-trip={trip.region.toLowerCase()} aria-pressed="false">
+            <span class="dot"></span>{trip.name} <span class="ftab__count">{countFor(trip.region.toLowerCase())}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="index-grid" id="entries">
+        {entries.map((entry) => <EntryCard entry={entry} />)}
+      </div>
+      <p class="index-empty" id="empty">No stories here yet — that trip's still being written. ✦</p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // Browse-by-trip filter: toggles cards, syncs the ?trip= query, supports deep links.
+  const bar = document.getElementById('filterbar');
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('#entries .entry-card'));
+  const empty = document.getElementById('empty');
+  const valid = ['malaysia', 'singapore', 'canada'];
+
+  function apply(trip: string) {
+    let shown = 0;
+    cards.forEach((c) => {
+      const match = trip === 'all' || c.getAttribute('data-trip') === trip;
+      c.classList.toggle('is-hidden', !match);
+      if (match) shown++;
+    });
+    if (empty) empty.style.display = shown ? 'none' : 'block';
+    bar?.querySelectorAll('.ftab').forEach((b) => {
+      const on = b.getAttribute('data-trip') === trip;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    history.replaceState(null, '', trip === 'all' ? location.pathname + location.hash : '?trip=' + trip);
+  }
+
+  bar?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.ftab');
+    if (!btn) return;
+    apply(btn.getAttribute('data-trip') || 'all');
+    document.getElementById('entries')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  const q = new URLSearchParams(location.search).get('trip');
+  if (q && valid.includes(q)) apply(q);
+</script>

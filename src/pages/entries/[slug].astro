@@ -1,0 +1,142 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import '@/styles/pages.css';
+import PhotoSlot from '@/components/PhotoSlot.astro';
+import EntryCard from '@/components/EntryCard.astro';
+import PortableText from '@/components/PortableText.astro';
+import {
+  getEntries,
+  getTrips,
+  getCurrentTrip,
+  getRelatedEntries,
+  getAdjacentEntries,
+  formatDate,
+} from '@/lib/content';
+import type { Entry } from '@/lib/types';
+
+// Statically generate a page for EVERY entry.
+export async function getStaticPaths() {
+  const entries = await getEntries();
+  const trips = await getTrips();
+  const current = await getCurrentTrip();
+  const startBySlug = Object.fromEntries(trips.map((t) => [t.slug, t.startDate]));
+
+  const paths = [];
+  for (const entry of entries) {
+    const related = await getRelatedEntries(entry, 3);
+    const { prev, next } = await getAdjacentEntries(entry);
+    paths.push({
+      params: { slug: entry.slug },
+      props: { entry, related, prev, next, tripStart: startBySlug[entry.tripSlug], isCurrent: entry.tripSlug === current?.slug },
+    });
+  }
+  return paths;
+}
+
+interface Props {
+  entry: Entry;
+  related: Entry[];
+  prev?: Entry;
+  next?: Entry;
+  tripStart?: string;
+  isCurrent: boolean;
+}
+
+const { entry, related, prev, next, tripStart } = Astro.props;
+
+const dayInTrip = tripStart
+  ? Math.max(1, Math.floor((Date.parse(entry.date) - Date.parse(tripStart)) / 86_400_000) + 1)
+  : null;
+---
+<Layout title={`${entry.title} — Detourist`} description={entry.excerpt}>
+  <article>
+    <!-- COVER -->
+    <header class="cover">
+      <PhotoSlot
+        image={entry.coverImage?.asset}
+        alt={entry.coverImage?.alt ?? entry.title}
+        label={entry.coverImage?.label}
+        tint={entry.coverTint}
+        width={1800}
+        pin
+      />
+      <div class="cover__shade"></div>
+      <div class="cover__inner">
+        <div class="wrap">
+          <div class="cover__meta">
+            <span class:list={['chip', `chip--${entry.tripColor}`]}>{entry.tripName}</span>
+            {dayInTrip && <span class="chip chip--paper">Day {dayInTrip}</span>}
+            <span class="chip chip--paper">{entry.readMins} min read</span>
+          </div>
+          <h1 class="cover__title">{entry.title}</h1>
+          <div class="cover__byline">
+            <span class="avatar">V</span>
+            <span>By Vito</span><span class="dotsep">·</span><span>{formatDate(entry.date)}</span>
+            {entry.location && (
+              <Fragment><span class="dotsep">·</span><span>{entry.location.name}</span></Fragment>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- BODY (Portable Text — may include an inline gallery) -->
+    <div class="article">
+      <PortableText blocks={entry.body} />
+    </div>
+
+    <!-- TAGS / SHARE -->
+    <div class="article__foot">
+      <div class="tags">
+        <span class="chip chip--paper">{entry.tripName}</span>
+        {entry.location && <span class="chip chip--paper">{entry.location.name}</span>}
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="eyebrow" style="color:var(--plum-soft);">Share</span>
+        <a href="#" aria-label="Share"
+          ><span style="width:40px;height:40px;border-radius:50%;background:var(--plum);display:grid;place-content:center;"
+            ><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+              ><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle></svg
+            ></span
+          ></a
+        >
+        <a href="#" aria-label="Email"
+          ><span style="width:40px;height:40px;border-radius:50%;background:var(--coral);display:grid;place-content:center;"
+            ><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+              ><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg
+            ></span
+          ></a
+        >
+      </div>
+    </div>
+  </article>
+
+  <!-- PREV / NEXT -->
+  <nav class="pntx">
+    {prev ? (
+      <a href={`/entries/${prev.slug}`} class="prev"><span class="k">← Previous</span><span class="t">{prev.title}</span></a>
+    ) : (
+      <a href="/journey" class="prev"><span class="k">← Back</span><span class="t">All the stories</span></a>
+    )}
+    {next ? (
+      <a href={`/entries/${next.slug}`} class="next"><span class="k">Next →</span><span class="t">{next.title}</span></a>
+    ) : (
+      <a href="/journey" class="next"><span class="k">More →</span><span class="t">Wander the journey map</span></a>
+    )}
+  </nav>
+
+  <!-- RELATED -->
+  {related.length > 0 && (
+    <section class="section related">
+      <div class="wrap">
+        <div class="related__head">
+          <span class="eyebrow">Keep wandering</span>
+          <span class="script">More from {entry.tripName}</span>
+        </div>
+        <div class="related__grid">
+          {related.map((e) => <EntryCard entry={e} />)}
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>

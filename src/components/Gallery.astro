@@ -1,0 +1,40 @@
+---
+// An inline photo gallery of tilted polaroids. Per-frame scrapbook accents
+// (tilt/tint) fall back to a deterministic pattern by index, so even a plain
+// Sanity gallery (images + alt only) gets the full scrapbook treatment.
+import Polaroid from './Polaroid.astro';
+import type { GalleryImage } from '@/lib/types';
+
+interface Props {
+  heading?: string;
+  note?: string;
+  images: GalleryImage[];
+}
+
+const { heading, note, images } = Astro.props;
+
+const TILTS = ['l', 'r', 'r', 'l', 'l', 'r'] as const;
+const TINTS = ['teal', 'gold', 'coral', 'magenta', 'sky', 'gold'] as const;
+---
+<div class="gallery">
+  {(heading || note) && (
+    <div class="gallery__head">
+      {heading && <span class="script">{heading}</span>}
+      {note && <span class="k">{note}</span>}
+    </div>
+  )}
+  <div class="gallery__grid">
+    {images.map((img, i) => (
+      <Polaroid
+        image={img.asset}
+        alt={img.alt}
+        label={img.label}
+        tint={img.tint ?? TINTS[i % TINTS.length]}
+        caption={img.caption}
+        tilt={img.tilt ?? TILTS[i % TILTS.length]}
+        tape={img.tape}
+        pin={img.pin}
+      />
+    ))}
+  </div>
+</div>

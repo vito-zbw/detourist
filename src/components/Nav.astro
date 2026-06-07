@@ -1,0 +1,39 @@
+---
+interface Props {
+  active?: 'home' | 'journey' | 'about';
+}
+const { active } = Astro.props;
+---
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a href="/" class="nav__logo">Detourist</a>
+    <nav class="nav__links">
+      <a href="/" class:list={[active === 'home' && 'is-active']}>Home</a>
+      <a href="/journey" class:list={[active === 'journey' && 'is-active']}>Journey</a>
+      <a href="/about" class:list={['btn', 'btn--coral', 'btn--sm', active === 'about' && 'is-active']}>About</a>
+    </nav>
+    <button class="nav__burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mnav" id="mnav">
+  <div class="mnav__top">
+    <span class="nav__logo" style="color:#fff;">Detourist</span>
+    <button class="mnav__close" id="mclose" aria-label="Close menu">×</button>
+  </div>
+  <nav class="mnav__links">
+    <a href="/">Home</a>
+    <a href="/journey">Journey</a>
+    <a href="/about">About</a>
+  </nav>
+</div>
+
+<script>
+  // The site's only non-map client JS: the mobile menu toggle.
+  const burger = document.getElementById('burger');
+  const mnav = document.getElementById('mnav');
+  const mclose = document.getElementById('mclose');
+  burger?.addEventListener('click', () => mnav?.classList.add('is-open'));
+  mclose?.addEventListener('click', () => mnav?.classList.remove('is-open'));
+  mnav?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => mnav?.classList.remove('is-open')));
+</script>

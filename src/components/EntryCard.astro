@@ -1,0 +1,38 @@
+---
+import PhotoSlot from './PhotoSlot.astro';
+import { formatDate } from '@/lib/content';
+import type { Entry } from '@/lib/types';
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+---
+<a href={`/entries/${entry.slug}`} class="entry-card" data-trip={entry.tripKey}>
+  <div class:list={['bar-top', `bg-${entry.tripColor}`]}></div>
+  <PhotoSlot
+    image={entry.coverImage?.asset}
+    alt={entry.coverImage?.alt ?? entry.title}
+    label={entry.coverImage?.label}
+    tint={entry.coverTint}
+    width={900}
+  >
+    <span class:list={['chip', `chip--${entry.tripColor}`]} style="position:absolute;top:14px;left:14px;z-index:2;">
+      {entry.tripName}
+    </span>
+  </PhotoSlot>
+  <div class="entry-card__body">
+    <div class="entry-card__meta">
+      <span>{formatDate(entry.date)}</span><span>·</span><span>{entry.readMins} min read</span>
+    </div>
+    <h3 class="entry-card__title">{entry.title}</h3>
+    <p class="entry-card__excerpt">{entry.excerpt}</p>
+    <span class="entry-card__more"
+      >Read more
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+        ><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+      >
+    </span>
+  </div>
+</a>

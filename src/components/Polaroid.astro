@@ -1,0 +1,49 @@
+---
+// A tilted polaroid frame with optional washi tape, pushpin and handwritten
+// caption — the core scrapbook unit.
+import PhotoSlot from './PhotoSlot.astro';
+import type { SanityImageSource, SlotTint, TapeColor, PinColor } from '@/lib/types';
+
+interface Props {
+  image?: SanityImageSource | null;
+  alt: string;
+  label?: string;
+  tint?: SlotTint;
+  caption?: string;
+  tilt?: 'l' | 'r' | 'l2' | 'r2';
+  tape?: TapeColor;
+  tapeStyle?: string;
+  pin?: PinColor;
+  /** show the little location icon inside the placeholder label */
+  labelPin?: boolean;
+  wide?: boolean;
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const {
+  image = null,
+  alt,
+  label,
+  tint,
+  caption,
+  tilt,
+  tape,
+  tapeStyle,
+  pin,
+  labelPin = false,
+  wide = false,
+  width,
+  height,
+  class: className,
+} = Astro.props;
+
+const tapeS = tapeStyle ?? 'top:-12px;left:32%;transform:rotate(-5deg);';
+---
+<div class:list={['polaroid', wide && 'polaroid--wide', tilt && `tilt-${tilt}`, className]}>
+  {tape && <span class:list={['tape', `tape--${tape}`]} style={tapeS}></span>}
+  {pin && <span class:list={['pin', `pin--${pin}`]} style="top:-11px;left:50%;transform:translateX(-50%);"></span>}
+  <PhotoSlot image={image} alt={alt} label={label} tint={tint} width={width} height={height} pin={labelPin} />
+  {caption && <div class="polaroid__cap">{caption}</div>}
+</div>

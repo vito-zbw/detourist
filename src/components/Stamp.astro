@@ -1,0 +1,16 @@
+---
+// A circular sticker / passport stamp. `big` is the large top line; the rest
+// of the text is passed as children (may contain <br/>).
+interface Props {
+  big: string;
+  variant?: 'gold' | 'coral' | 'teal' | 'magenta';
+  tilt?: 'l' | 'r' | 'l2' | 'r2';
+  class?: string;
+  style?: string;
+}
+
+const { big, variant, tilt, class: className, style } = Astro.props;
+---
+<div class:list={['stamp', variant && `stamp--${variant}`, tilt && `tilt-${tilt}`, className]} style={style}>
+  <span><span class="stamp__big">{big}</span><slot /></span>
+</div>

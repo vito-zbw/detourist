@@ -1,0 +1,143 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import '@/styles/home.css';
+import EntryCard from '@/components/EntryCard.astro';
+import PhotoSlot from '@/components/PhotoSlot.astro';
+import Stamp from '@/components/Stamp.astro';
+import JourneyMap from '@/components/JourneyMap.astro';
+import { getCurrentTrip, getFeaturedEntries, getTrips, getEntries, getMapEntries } from '@/lib/content';
+import type { SlotTint } from '@/lib/types';
+
+const current = await getCurrentTrip();
+const featured = await getFeaturedEntries(3);
+const trips = await getTrips();
+const entries = await getEntries();
+const mapEntries = await getMapEntries();
+
+// entries are newest-first; the first one in the current trip is "live"
+const latest = entries[0];
+const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
+const liveSlug = liveEntry?.slug;
+const heroLocation = current?.region ?? 'Canada';
+
+// browse-by-trip cards read best chronologically, ending on the live trip
+const tripCards = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
+---
+<Layout title="Detourist — Field Notes from the Road" active="home">
+  <!-- HERO — bold color-block split -->
+  <section class="hero">
+    <div class="hero__split">
+      <div class="hero__left">
+        <span class="hero__eyebrow"><span class="live-dot"></span>Live now · on the road</span>
+        <h1>Currently in<span class="loc">{current?.region ?? 'Canada'}</span></h1>
+        <p class="hero__lead">Hey, I'm Vito — field notes, mishaps and very good sandwiches, written from the road in real time.</p>
+        <div class="hero__where">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFB22E"
+            ><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"></path></svg
+          >
+          {heroLocation}
+        </div>
+        <div class="hero__cta">
+          <a href={`/entries/${latest.slug}`} class="btn btn--gold btn--lg"
+            >Read the latest dispatch
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              ><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+            >
+          </a>
+          <a href="/journey#map" class="btn btn--lg" style="background:rgba(255,255,255,.18);color:#fff;">See the journey map</a>
+        </div>
+      </div>
+
+      <div class="hero__right">
+        <div class="hero__collage">
+          <div class="hero__stamp">
+            <Stamp big={current?.region ?? 'Canada'} tilt="l" style="background:var(--plum);color:#fff;border-color:rgba(255,255,255,.55);">on the road</Stamp>
+          </div>
+          <div class="polaroid p1 tilt-r">
+            <span class="tape tape--gold" style="top:-14px;left:34%;transform:rotate(-5deg);"></span>
+            <PhotoSlot tint="teal" pin label="hero photo · me at Moraine Lake" alt="Vito at Moraine Lake" />
+            <div class="polaroid__cap">Moraine Lake, day one ✦</div>
+          </div>
+          <div class="polaroid p2 tilt-l2">
+            <span class="pin pin--gold" style="top:-12px;left:50%;transform:translateX(-50%);"></span>
+            <PhotoSlot tint="gold" label="roadside diner stop" alt="A roadside diner stop" />
+          </div>
+          <span class="hero__scrap">eh? 🍁</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAT RIBBON -->
+  <section class="statbar">
+    <div class="wrap statbar__row">
+      <div class="stat"><span class="stat__num c1">3</span><span class="stat__lbl">countries</span></div>
+      <span class="stat__sep"></span>
+      <div class="stat"><span class="stat__num c2">14</span><span class="stat__lbl">stops on the map</span></div>
+      <span class="stat__sep"></span>
+      <div class="stat"><span class="stat__num c3">48</span><span class="stat__lbl">stories written</span></div>
+      <span class="stat__sep"></span>
+      <div class="stat"><span class="stat__num c4">2.1k</span><span class="stat__lbl">photos &amp; counting</span></div>
+    </div>
+  </section>
+
+  <!-- FEATURED ENTRIES -->
+  <section class="section bg-paper">
+    <div class="wrap">
+      <div class="title-block">
+        <span class="eyebrow">Fresh off the memory card</span>
+        <h2 class="script h-lg">Read my stories</h2>
+        <svg class="underline-scribble" viewBox="0 0 280 14" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"
+          ><path d="M4 9c46-7 92-7 138-4s90 6 134-1"></path></svg
+        >
+      </div>
+      <div class="feat-grid">
+        {featured.map((entry) => <EntryCard entry={entry} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- BROWSE BY TRIP -->
+  <section class="section bg-paper2">
+    <div class="wrap">
+      <div class="title-block">
+        <span class="eyebrow">Pick a chapter</span>
+        <h2 class="script h-lg">Browse by trip</h2>
+      </div>
+      <div class="trips">
+        {tripCards.map((trip) => (
+          <a href={`/journey?trip=${trip.slug}`} class="trip">
+            <PhotoSlot image={trip.coverImage?.asset} alt={trip.coverImage?.alt ?? trip.name} label={`cover · ${trip.name}`} tint={trip.color as SlotTint} />
+            <div class="trip__shade"></div>
+            {trip.endDate ? (
+              <span class:list={['chip', `chip--${trip.color}`, 'trip__flag']}>{trip.duration}</span>
+            ) : (
+              <span class="chip chip--coral trip__flag"><span class="live-dot"></span>&nbsp;Live</span>
+            )}
+            <div class="trip__inner">
+              <div class="trip__name">{trip.name}</div>
+              <div class="trip__meta">{trip.routeLabel}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNEY MAP TEASER -->
+  <section class="section bg-paper">
+    <div class="wrap">
+      <div class="jmap">
+        <div class="jmap-grid">
+          <JourneyMap entries={mapEntries} liveSlug={liveSlug} variant="teaser" />
+          <div class="jmap__side">
+            <span class="eyebrow" style="color:rgba(255,255,255,.85);">Every pin tells a story</span>
+            <h2 class="script h-md" style="color:#fff;">Follow my<br />journey</h2>
+            <p style="color:rgba(255,255,255,.9);">Three countries, fourteen stops, and a route that made almost no logistical sense. Tap any pin to read what happened there.</p>
+            <a href="/journey#map" class="btn btn--gold" style="align-self:flex-start;">Explore the map</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

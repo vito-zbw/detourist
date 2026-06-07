@@ -1,0 +1,23 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# secrets — never commit real env files (see .env.example)
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+*.log
+.vscode/
+
+# personal journal source data — not deployed (site reads from Sanity)
+AppleJournalEntries/
+
+# import pipeline artifacts
+scripts/import/.cache/
+scripts/import/manifest.json

@@ -1,0 +1,44 @@
+---
+// A photo slot. When `image` (a Sanity image source) is present it renders an
+// optimised <img> via the Sanity image pipeline; otherwise it falls back to the
+// design's labeled "drop-in" placeholder. Children render as overlays (chips…).
+import { urlForImage } from '@/lib/sanity';
+import type { SanityImageSource, SlotTint } from '@/lib/types';
+
+interface Props {
+  image?: SanityImageSource | null;
+  alt: string;
+  label?: string;
+  tint?: SlotTint;
+  width?: number;
+  height?: number;
+  /** show a small location pin before the placeholder label */
+  pin?: boolean;
+  class?: string;
+}
+
+const { image = null, alt, label, tint, width = 1200, height, pin = false, class: className } = Astro.props;
+
+let src: string | undefined;
+if (image) {
+  let builder = urlForImage(image).width(width).auto('format');
+  if (height) builder = builder.height(height).fit('crop');
+  src = builder.url();
+}
+---
+<div class:list={['photo-slot', tint && `slot-${tint}`, image && 'photo-slot--filled', className]}>
+  {src && <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />}
+  {!image && label && (
+    <span class="photo-slot__label">
+      {pin && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"
+          ><path
+            d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"
+          ></path></svg
+        >
+      )}
+      {label}
+    </span>
+  )}
+  <slot />
+</div>

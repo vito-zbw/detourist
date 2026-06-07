@@ -1,0 +1,192 @@
+/* ============================================================
+   Detourist — shared page styles for Journey / Entry / About
+   (loads alongside blog.css). Base tokens, fonts, polaroids,
+   chips, pins, tape, buttons, nav & footer all live in blog.css.
+   ============================================================ */
+
+/* the chosen headline voice drives all big display type */
+.pagehead__title,.jbig__title,
+.article__title,.about__name,.pull,.related__head .script,.gallery__head .script{font-family:var(--display);}
+
+/* ============================================================
+   PAGE HEADER — color-block banner (mirrors the homepage hero)
+   ============================================================ */
+.pagehead{position:relative;background:var(--hero-l);color:#fff;overflow:hidden;}
+.pagehead::before{content:"";position:absolute;width:440px;height:440px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);top:-180px;right:-120px;pointer-events:none;}
+.pagehead__inner{position:relative;z-index:2;padding:clamp(44px,7vw,84px) 0 clamp(40px,6vw,66px);
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;}
+.pagehead__eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.2);color:#fff;
+  font-family:var(--stamp);text-transform:uppercase;letter-spacing:.12em;font-size:13.5px;padding:8px 15px;border-radius:999px;}
+.pagehead__title{font-family:var(--display);font-weight:700;font-size:clamp(50px,7vw,108px);line-height:1.05;margin:14px 0 16px;padding-bottom:.34em;}
+.pagehead__title .accent{color:var(--gold);}
+.pagehead__lead{font-size:19px;color:rgba(255,255,255,.94);max-width:54ch;}
+.pagehead--center .pagehead__inner{align-items:center;text-align:center;}
+
+/* ============================================================
+   FILTER TABS — browse by trip
+   ============================================================ */
+.filterbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:0 auto clamp(30px,4vw,46px);}
+.ftab{display:inline-flex;align-items:center;gap:9px;white-space:nowrap;border:2.5px solid var(--line);background:#fff;color:var(--plum);
+  font-family:var(--stamp);text-transform:uppercase;letter-spacing:.08em;font-size:14px;
+  padding:11px 20px;border-radius:999px;cursor:pointer;transition:transform .12s ease, background .15s ease, color .15s ease, border-color .15s ease;}
+.ftab:hover{transform:translateY(-2px);}
+.ftab .dot{width:11px;height:11px;border-radius:50%;background:var(--plum);}
+.ftab[data-trip="malaysia"] .dot{background:var(--magenta);}
+.ftab[data-trip="singapore"] .dot{background:var(--teal);}
+.ftab[data-trip="canada"] .dot{background:var(--coral);}
+.ftab.is-active{color:#fff;border-color:transparent;background:var(--plum);}
+.ftab.is-active[data-trip="malaysia"]{background:var(--magenta);}
+.ftab.is-active[data-trip="singapore"]{background:var(--teal);}
+.ftab.is-active[data-trip="canada"]{background:var(--coral);}
+.ftab__count{font-size:12px;opacity:.7;}
+
+/* entries grid + filtering */
+.index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;}
+.index-grid .entry-card.is-hidden{display:none;}
+.index-empty{display:none;text-align:center;color:var(--plum-soft);font-weight:700;padding:30px;}
+
+/* ============================================================
+   BIG JOURNEY MAP (Journey #map) — the .jbig__field holds the
+   MapLibre island; the rest is the scrapbook card chrome.
+   ============================================================ */
+.jbig{position:relative;background:var(--teal);border-radius:24px;overflow:hidden;color:#fff;box-shadow:var(--shadow-card);
+  padding:clamp(24px,3.5vw,40px);}
+.jbig::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 18% 24%, rgba(255,255,255,.09) 0 2px, transparent 2px),
+             radial-gradient(circle at 62% 68%, rgba(255,255,255,.09) 0 2px, transparent 2px);
+  background-size:36px 36px;opacity:.6;pointer-events:none;}
+.jbig__top{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:22px;}
+.jbig__title{font-weight:700;font-size:clamp(34px,4.4vw,60px);line-height:.92;}
+.jbig__sub{color:rgba(255,255,255,.85);font-weight:600;max-width:40ch;margin-top:6px;}
+.jbig__legend{display:flex;flex-wrap:wrap;gap:8px;}
+.jbig__legend .chip{white-space:nowrap;}
+.jbig__field{position:relative;z-index:2;height:clamp(360px,52vw,540px);border-radius:16px;
+  background:rgba(255,255,255,.08);border:2px dashed rgba(255,255,255,.32);overflow:hidden;}
+.jbig__note{position:relative;z-index:2;margin-top:16px;color:rgba(255,255,255,.82);font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:8px;}
+
+/* ============================================================
+   ENTRY (single article)
+   ============================================================ */
+.cover{position:relative;min-height:clamp(440px,60vh,600px);display:flex;align-items:flex-end;overflow:hidden;background:var(--plum);}
+.cover .photo-slot{position:absolute;inset:0;aspect-ratio:auto;height:100%;}
+.cover .photo-slot::before{display:none;}
+.cover .photo-slot__label{position:absolute;top:16px;right:16px;left:auto;bottom:auto;margin:0;}
+.cover__shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(43,35,66,.15) 0%,transparent 28%,rgba(43,35,66,.8) 100%);}
+.cover__inner{position:relative;z-index:2;width:100%;padding-top:clamp(70px,10vw,96px);}
+.cover__meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px;}
+.cover__title{font-family:var(--display);font-weight:700;color:#fff;font-size:clamp(40px,5.4vw,72px);line-height:1.08;max-width:22ch;
+  text-shadow:0 2px 24px rgba(43,35,66,.5);padding-bottom:.12em;}
+.cover__byline{display:flex;align-items:center;gap:12px;margin-top:24px;color:rgba(255,255,255,.92);font-weight:700;padding-bottom:clamp(26px,4vw,40px);flex-wrap:wrap;}
+.cover__byline .avatar{width:46px;height:46px;border-radius:50%;border:2.5px solid #fff;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.25) 0 8px,rgba(255,255,255,.12) 8px 16px),var(--gold);
+  display:grid;place-content:center;font-family:var(--script);font-size:24px;color:var(--plum);}
+.cover__byline .dotsep{opacity:.6;}
+
+.article{max-width:720px;margin:0 auto;padding:clamp(38px,6vw,64px) 22px;}
+.article__title{display:none;}
+.article p{font-size:19px;line-height:1.7;color:var(--ink);margin:0 0 22px;}
+.article p.dropcap::first-letter{font-family:var(--display);font-size:78px;line-height:.7;float:left;margin:8px 12px 0 0;color:var(--coral);font-weight:700;}
+.article h2{font-family:var(--body);font-weight:900;font-size:clamp(26px,3.4vw,34px);color:var(--plum);margin:38px 0 12px;line-height:1.15;}
+.article h2 .sw{color:var(--coral);}
+.article a{color:var(--coral-deep);text-decoration:underline;text-underline-offset:3px;font-weight:700;}
+.article ul{margin:0 0 22px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
+.article ul li{position:relative;padding-left:34px;font-size:18px;line-height:1.6;}
+.article ul li::before{content:"";position:absolute;left:6px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--gold);}
+.pull{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.6vw,50px);line-height:1.04;color:var(--plum);
+  border-left:6px solid var(--coral);padding:6px 0 6px 24px;margin:32px 0;}
+.tip{position:relative;background:var(--paper-2);border-radius:16px;padding:22px 24px 22px 26px;margin:30px 0;box-shadow:var(--shadow-soft);}
+.tip::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:6px;border-radius:6px;background:var(--teal);}
+.tip__k{font-family:var(--stamp);text-transform:uppercase;letter-spacing:.1em;font-size:12.5px;color:var(--teal-deep);margin-bottom:6px;}
+.tip p{font-size:17px;margin:0;}
+
+/* inline gallery */
+.gallery{margin:34px 0;}
+.gallery__head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin-bottom:22px;}
+.gallery__head .script{font-size:34px;color:var(--plum);line-height:1.1;white-space:nowrap;}
+.gallery__head .k{font-family:var(--stamp);text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:var(--plum-soft);}
+.gallery__grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;}
+.gallery__grid .polaroid{grid-column:span 2;}
+.gallery__grid .polaroid:nth-child(1){grid-column:span 3;}
+.gallery__grid .polaroid:nth-child(2){grid-column:span 3;}
+.gallery .photo-slot{aspect-ratio:4/3;}
+
+/* article footer / tags + share */
+.article__foot{max-width:720px;margin:0 auto;padding:0 22px clamp(20px,4vw,40px);
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;}
+.tags{display:flex;flex-wrap:wrap;gap:8px;}
+
+/* prev / next */
+.pntx{max-width:980px;margin:0 auto;padding:0 22px clamp(40px,6vw,70px);display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.pntx a{display:flex;flex-direction:column;gap:6px;background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow-soft);
+  transition:transform .14s ease,box-shadow .14s ease;}
+.pntx a:hover{transform:translateY(-4px);box-shadow:var(--shadow-card);}
+.pntx .k{font-family:var(--stamp);text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:var(--plum-soft);}
+.pntx .t{font-weight:900;font-size:19px;color:var(--plum);line-height:1.2;}
+.pntx a.next{text-align:right;align-items:flex-end;}
+
+/* related strip */
+.related{background:var(--paper-2);}
+.related__head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin-bottom:34px;}
+.related__head .script{font-size:clamp(36px,5vw,58px);color:var(--plum);line-height:1;}
+.related__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-hero{position:relative;overflow:hidden;}
+.about-hero__split{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,56px);align-items:center;
+  padding:clamp(40px,6vw,80px) 0;}
+.about-hero__copy{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
+.about-hero__copy .eyebrow{color:var(--coral);}
+.about__name{font-family:var(--display);font-weight:700;font-size:clamp(54px,8vw,120px);line-height:.92;color:var(--plum);}
+.about__name .accent{color:var(--coral);}
+.about-hero__lead{font-size:21px;color:var(--plum-soft);max-width:40ch;margin:6px 0 12px;}
+.about-portrait{position:relative;display:flex;justify-content:center;}
+.about-portrait .polaroid{width:min(80%,360px);}
+.about-portrait .photo-slot{aspect-ratio:4/4.4;}
+.about-portrait .stamp{position:absolute;bottom:-18px;right:6%;z-index:6;}
+
+.about-body{max-width:760px;margin:0 auto;}
+.about-body p{font-size:19px;line-height:1.7;color:var(--ink);margin:0 0 22px;}
+.about-body p.dropcap::first-letter{font-family:var(--display);font-size:74px;line-height:.7;float:left;margin:8px 12px 0 0;color:var(--coral);font-weight:700;}
+.about-body a{color:var(--coral-deep);text-decoration:underline;text-underline-offset:3px;font-weight:700;}
+
+/* facts + currently cards */
+.about-cards{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin:8px 0 6px;}
+.factcard{background:#fff;border-radius:18px;padding:26px 28px;box-shadow:var(--shadow-card);}
+.factcard h3,.nowcard h3{font-family:var(--stamp);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--plum-soft);margin:0 0 16px;}
+.facts{display:flex;flex-direction:column;gap:0;}
+.facts .row{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px dashed var(--line);}
+.facts .row:last-child{border-bottom:none;}
+.facts .row .k{font-weight:800;color:var(--plum);}
+.facts .row .v{color:var(--plum-soft);font-weight:600;text-align:right;}
+.nowcard{background:var(--gold);color:var(--plum);border-radius:18px;padding:26px 28px;box-shadow:var(--shadow-card);position:relative;overflow:hidden;}
+.nowcard h3{color:rgba(43,35,66,.7);}
+.nowcard .big{font-family:var(--display);font-weight:700;font-size:38px;line-height:1;margin-bottom:8px;}
+.nowcard p{font-weight:700;font-size:16px;margin:0;}
+.nowcard .tape{top:-6px;left:24px;}
+
+/* countries / passport stamps */
+.stamps{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;}
+.stamps .stamp{width:128px;height:128px;}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:860px){
+  .index-grid{grid-template-columns:1fr;}
+  .related__grid{grid-template-columns:1fr;}
+  .gallery__grid{grid-template-columns:repeat(2,1fr);}
+  .gallery__grid .polaroid,
+  .gallery__grid .polaroid:nth-child(1),
+  .gallery__grid .polaroid:nth-child(2){grid-column:span 1;}
+  .about-hero__split{grid-template-columns:1fr;}
+  .about-cards{grid-template-columns:1fr;}
+  .pntx{grid-template-columns:1fr;}
+}
+@media(max-width:520px){
+  .filterbar{gap:9px;}
+  .ftab{padding:9px 15px;font-size:13px;}
+  .jbig__field{height:380px;}
+}
