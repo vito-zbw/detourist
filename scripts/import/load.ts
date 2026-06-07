@@ -39,18 +39,30 @@ async function main() {
 
   const client = getClient();
   const count = await client.fetch<number>('count(*)');
-  console.log(`Connected to Sanity (existing documents: ${count}). Uploading assets…`);
+  console.log(`Connected to Sanity (existing documents: ${count}). Resolving assets…`);
 
-  let n = 0;
+  // Reuse assets already uploaded (Sanity stores our `${uuid}.jpg` as
+  // originalFilename) so re-runs don't re-transfer 127 files.
+  const existing = await client.fetch<{ _id: string; originalFilename: string | null }[]>(
+    '*[_type=="sanity.imageAsset"]{_id, originalFilename}',
+  );
+  const idByFilename = new Map(existing.filter((a) => a.originalFilename).map((a) => [a.originalFilename as string, a._id]));
+
+  let uploaded = 0;
+  let reused = 0;
   for (const [uuid, photo] of uniqueByUuid) {
-    const jpg = path.resolve(photo.jpg);
-    const asset = await client.assets.upload('image', fs.createReadStream(jpg), {
-      filename: `${uuid}.jpg`,
-    });
+    const filename = `${uuid}.jpg`;
+    const known = idByFilename.get(filename);
+    if (known) {
+      assetIdByUuid[uuid] = known;
+      reused++;
+      continue;
+    }
+    const asset = await client.assets.upload('image', fs.createReadStream(path.resolve(photo.jpg)), { filename });
     assetIdByUuid[uuid] = asset._id;
-    if (++n % 10 === 0) console.log(`  uploaded ${n}/${uniqueByUuid.size}`);
+    if (++uploaded % 10 === 0) console.log(`  uploaded ${uploaded}…`);
   }
-  console.log(`Uploaded ${n} assets. Writing documents…`);
+  console.log(`Assets: ${reused} reused, ${uploaded} uploaded. Writing documents…`);
 
   const tx = client.transaction();
   for (const t of manifest.trips) tx.createOrReplace(buildTripDoc(t, assetIdByUuid[t.coverPhoto]));

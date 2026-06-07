@@ -41,11 +41,20 @@ describe('buildEntryDoc', () => {
     expect(doc.trip).toEqual({ _type: 'reference', _ref: 'trip.malaysia' });
     expect(doc.date).toBe('2024-05-10T12:00:00Z');
   });
-  it('uses photo[0] as cover and the rest as gallery (with _key)', () => {
+  it('uses photo[0] as cover; remaining photos become an inline body gallery block', () => {
     expect(doc.coverImage.asset._ref).toBe('image-aaa');
-    expect(doc.gallery).toHaveLength(1);
-    expect(doc.gallery[0].asset._ref).toBe('image-bbb');
-    expect(doc.gallery[0]._key).toBeTruthy();
+    // top-level gallery field is unused by the template
+    expect(doc.gallery).toEqual([]);
+    const gal: any = doc.body.find((b: any) => b._type === 'gallery');
+    expect(gal).toBeTruthy();
+    expect(gal.images).toHaveLength(1);
+    expect(gal.images[0].asset._ref).toBe('image-bbb');
+    expect(gal.images[0].alt).toBe('gallery alt');
+    expect(gal.images[0]._key).toBeTruthy();
+  });
+  it('keeps narrative text blocks before the gallery', () => {
+    expect(doc.body[0]).toMatchObject({ _type: 'block', style: 'normal' });
+    expect((doc.body[doc.body.length - 1] as any)._type).toBe('gallery');
   });
   it('builds a geopoint location', () => {
     expect(doc.location).toEqual({

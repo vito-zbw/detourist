@@ -36,6 +36,26 @@ export function buildTripDoc(trip: ManifestTrip, coverAssetId: string) {
   };
 }
 
+/** An inline Portable Text photo gallery — the only gallery surface the entry
+ *  template renders (via PortableText → Gallery → Polaroid). The top-level
+ *  `gallery` field is NOT rendered, so the day's photos live here instead. */
+export function buildGalleryBlock(
+  photos: { uuid: string; alt: string }[],
+  keyPrefix: string,
+  ref: (uuid: string) => string,
+) {
+  return {
+    _type: 'gallery' as const,
+    _key: `${keyPrefix}-gallery`,
+    images: photos.map((p, i) => ({
+      _key: `${keyPrefix}-gi${i}`,
+      _type: 'image' as const,
+      asset: { _type: 'reference' as const, _ref: ref(p.uuid) },
+      alt: p.alt,
+    })),
+  };
+}
+
 export function buildEntryDoc(entry: ManifestEntry, assetIdByUuid: Record<string, string>) {
   const ref = (uuid: string) => {
     const id = assetIdByUuid[uuid];
@@ -43,10 +63,10 @@ export function buildEntryDoc(entry: ManifestEntry, assetIdByUuid: Record<string
     return id;
   };
   const [cover, ...rest] = entry.photos;
-  const gallery: ImageMember[] = rest.map((p, i) => ({
-    _key: `${entry._id}-g${i}`,
-    ...buildImage(ref(p.uuid), p.alt),
-  }));
+
+  // Narrative text, then an inline gallery of the day's remaining photos.
+  const body: any[] = buildPortableText(entry.body, entry._id);
+  if (rest.length) body.push(buildGalleryBlock(rest, entry._id, ref));
 
   return {
     _id: entry._id,
@@ -60,8 +80,8 @@ export function buildEntryDoc(entry: ManifestEntry, assetIdByUuid: Record<string
       geopoint: { _type: 'geopoint' as const, lat: entry.location.lat, lng: entry.location.lng },
     },
     coverImage: buildImage(ref(cover.uuid), cover.alt),
-    gallery,
-    body: buildPortableText(entry.body, entry._id),
+    gallery: [] as ImageMember[], // top-level field is not rendered by the template
+    body,
     excerpt: entry.excerpt,
     featured: entry.featured,
   };
