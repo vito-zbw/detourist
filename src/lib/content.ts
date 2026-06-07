@@ -4,7 +4,7 @@
 // call the exported helpers below.
 // ============================================================
 import { hasSanity, sanityClient } from './sanity';
-import { TRIPS_QUERY, ENTRIES_QUERY } from './queries';
+import { TRIPS_QUERY, ENTRIES_QUERY, SITE_SETTINGS_QUERY } from './queries';
 import { seedTrips, seedEntries } from './seed';
 import type {
   Trip,
@@ -14,12 +14,37 @@ import type {
   GalleryImage,
   PortableBlock,
   TravelImage,
+  VisitedCountry,
+  SiteStats,
 } from './types';
 
 const REGION_COLOR: Record<string, TripColor> = {
   malaysia: 'magenta',
   singapore: 'teal',
   canada: 'coral',
+};
+
+/** region (lowercased) → ISO 3166-1 numeric code (as string; matches world-atlas feature ids). */
+const REGION_ISO: Record<string, string> = {
+  malaysia: '458',
+  singapore: '702',
+  canada: '124',
+};
+
+/** region (lowercased) → continent, for the homepage "continents" stat. */
+const REGION_CONTINENT: Record<string, string> = {
+  malaysia: 'Asia',
+  singapore: 'Asia',
+  canada: 'North America',
+};
+
+/**
+ * Micro-states whose polygon is missing/invisible at world scale → locator ring at [lng, lat].
+ * Only add a region here if it has NO usable polygon at the 110m dataset scale; a region with
+ * both a polygon and a marker would render twice (and both would carry the same data-key).
+ */
+const REGION_MARKER: Record<string, [number, number]> = {
+  singapore: [103.82, 1.35],
 };
 
 function colorForRegion(region: string | undefined): TripColor {
@@ -198,12 +223,75 @@ export async function getFeaturedEntries(limit = 3): Promise<Entry[]> {
   return (featured.length ? featured : entries).slice(0, limit);
 }
 
-/** Entries that have a geopoint, oldest-first so the route line draws in order. */
-export async function getMapEntries(): Promise<Entry[]> {
-  const entries = await getEntries();
-  return entries
-    .filter((e) => e.location)
-    .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+/** One record per visited country (deduped by region), for the world map. */
+export async function getVisitedCountries(): Promise<VisitedCountry[]> {
+  const trips = await getTrips(); // current/ongoing trip sorts first
+  const byKey = new Map<string, VisitedCountry>();
+  for (const trip of trips) {
+    const key = trip.region.toLowerCase();
+    const iso = REGION_ISO[key];
+    if (!iso) continue; // no mapping yet → skip gracefully
+    const live = !trip.endDate;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.live = existing.live || live;
+      continue;
+    }
+    byKey.set(key, { key, region: trip.region, color: trip.color, iso, live, marker: REGION_MARKER[key] });
+  }
+  return [...byKey.values()];
+}
+
+/** Images embedded in an entry body: inline images + every gallery frame. */
+function countBodyImages(body: PortableBlock[]): number {
+  let n = 0;
+  for (const block of body) {
+    if (block._type === 'gallery') n += block.images?.length ?? 0;
+    else if (block._type === 'image') n += 1;
+  }
+  return n;
+}
+
+/**
+ * Headline counts for the homepage stat ribbon — all derived from real content
+ * so they stay truthful as trips/entries are published. "photos" counts every
+ * image actually shown for an entry: its cover plus the inline images/gallery
+ * frames in the body (the entry `gallery` field isn't rendered on the page, so
+ * it's intentionally excluded).
+ */
+export async function getSiteStats(): Promise<SiteStats> {
+  const [entries, countries] = await Promise.all([getEntries(), getVisitedCountries()]);
+  const continents = new Set(
+    countries.map((c) => REGION_CONTINENT[c.key]).filter(Boolean),
+  ).size;
+  const photos = entries.reduce(
+    (n, e) => n + (e.coverImage ? 1 : 0) + countBodyImages(e.body),
+    0,
+  );
+  return { continents, countries: countries.length, stories: entries.length, photos };
+}
+
+/** Site "chrome" images — About portrait, Journey hero background, and the two
+ *  homepage hero-collage photos — from the `siteSettings` singleton. Any null
+ *  field means the page keeps its existing placeholder/teal. */
+export interface SiteSettings {
+  portrait: TravelImage | null;
+  journeyHero: TravelImage | null;
+  homeHeroPrimary: TravelImage | null;
+  homeHeroSecondary: TravelImage | null;
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  if (hasSanity && sanityClient) {
+    const raw = await sanityClient.fetch<any>(SITE_SETTINGS_QUERY);
+    return {
+      portrait: mapImage(raw?.portrait),
+      journeyHero: mapImage(raw?.journeyHero),
+      homeHeroPrimary: mapImage(raw?.homeHeroPrimary),
+      homeHeroSecondary: mapImage(raw?.homeHeroSecondary),
+    };
+  }
+  return { portrait: null, journeyHero: null, homeHeroPrimary: null, homeHeroSecondary: null };
 }
 
 export async function getRelatedEntries(entry: Entry, limit = 3): Promise<Entry[]> {
@@ -234,6 +322,17 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 
 export function formatDate(iso: string): string {
   return dateFmt.format(new Date(iso));
+}
+
+/** Compact count for stat ribbons: 2147 → "2.1k", 980 → "980". */
+export function formatCount(n: number): string {
+  if (n < 1000) return String(n);
+  return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+}
+
+/** Count + pluralized noun for inline prose: countLabel(2, 'country', 'countries') → "2 countries". */
+export function countLabel(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
 }
 
 /** "day N on the road" — days since a trip started (>= 1). */

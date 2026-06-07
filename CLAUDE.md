@@ -19,7 +19,7 @@ phone while traveling**. The architecture below exists to support that.
 
 - **Astro** — static site generator (build-time rendering, minimal client JS)
 - **Sanity** — headless CMS; the single source of truth for all content
-- **MapLibre GL JS + OpenFreeMap** — custom-styled vector map
+- **d3-geo + topojson-client + world-atlas** — build-time static SVG world choropleth (no client-side map library)
 - **Cloudflare Pages** — hosting
 - **TypeScript** throughout
 
@@ -94,10 +94,21 @@ lives in the `/journey` filter.
 
 ## Map
 
-Rendered with MapLibre GL JS using OpenFreeMap vector tiles. The map style is
-**customized to the site's palette** (not a generic gray basemap). One marker
-per entry `geopoint`; optionally connect markers by `date` to draw a route.
-Implement it as a client-side Astro island — keep the rest of the page static.
+A **static world choropleth**, generated at build time by `WorldMap.astro` using
+`d3-geo` + `topojson-client` over a `world-atlas` TopoJSON. Each **visited country**
+(derived from a trip's `region`, via `getVisitedCountries()`) is filled in its trip
+color; the rest of the world is gray. The projection is `geoNaturalEarth1` with a
+faint graticule and a white sphere — a flat "poster" map, not a slippy tile map. The
+heavy libraries run **only at build**; the browser receives plain inline SVG.
+
+Tiny countries that have no usable polygon at world scale (e.g. Singapore) get a
+small trip-colored locator ring via the `marker` field on `VisitedCountry`.
+
+Interaction: on the homepage teaser, visited countries are static `<a>` deep-links to
+`/journey?trip=<region>#map`. On the Journey page the map is linked to the browse-by-trip
+filter **both directions** — selecting a tab highlights that country, and clicking a
+country filters the entries. There is no per-entry pin or route line (browsing is by
+trip/country only). Do NOT reintroduce MapLibre or an SSR adapter — the map is static SVG.
 
 ## Design direction
 

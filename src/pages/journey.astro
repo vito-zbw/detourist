@@ -2,16 +2,20 @@
 import Layout from '@/layouts/Layout.astro';
 import '@/styles/pages.css';
 import EntryCard from '@/components/EntryCard.astro';
-import JourneyMap from '@/components/JourneyMap.astro';
-import { getEntries, getMapEntries, getTrips, getCurrentTrip } from '@/lib/content';
+import WorldMap from '@/components/WorldMap.astro';
+import { getEntries, getVisitedCountries, getTrips, getSiteStats, getSiteSettings, countLabel } from '@/lib/content';
+import { urlForImage } from '@/lib/sanity';
 
 const entries = await getEntries(); // newest first
-const mapEntries = await getMapEntries();
+const visited = await getVisitedCountries();
 const trips = await getTrips();
-const current = await getCurrentTrip();
-
-const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
-const liveSlug = liveEntry?.slug;
+const stats = await getSiteStats();
+const site = await getSiteSettings();
+// Optional photo behind the page-header title; teal overlay keeps the white
+// title readable. Falls back to the flat teal band when unset.
+const journeyHeroUrl = site.journeyHero?.asset
+  ? urlForImage(site.journeyHero.asset).width(1800).auto('format').url()
+  : null;
 
 // filter tabs, ordered chronologically by trip start
 const tabTrips = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
@@ -19,11 +23,16 @@ const countFor = (key: string) => entries.filter((e) => e.tripKey === key).lengt
 ---
 <Layout title="Journey — Detourist" active="journey">
   <!-- PAGE HEADER -->
-  <section class="pagehead">
+  <section
+    class="pagehead"
+    style={journeyHeroUrl
+      ? `background-image: linear-gradient(105deg, rgba(11,77,72,.92) 0%, rgba(14,142,132,.66) 55%, rgba(43,35,66,.5) 100%), url(${journeyHeroUrl}); background-size: cover; background-position: center;`
+      : undefined}
+  >
     <div class="wrap pagehead__inner">
       <span class="pagehead__eyebrow">Every wrong turn, written down</span>
       <h1 class="pagehead__title">All the <span class="accent">stories</span></h1>
-      <p class="pagehead__lead">Three countries, fourteen stops, one slightly chaotic route. Pick a trip below — or wander the map and let a pin decide for you.</p>
+      <p class="pagehead__lead">{countLabel(stats.countries, 'country', 'countries')}, {countLabel(stats.stories, 'story', 'stories')}, one slightly chaotic route. Pick a trip below — or wander the map and let a pin decide for you.</p>
     </div>
   </section>
 
@@ -34,23 +43,17 @@ const countFor = (key: string) => entries.filter((e) => e.tripKey === key).lengt
         <div class="jbig__top">
           <div>
             <div class="jbig__title">The journey so far</div>
-            <p class="jbig__sub">Kuala Lumpur → Penang → Singapore → all the way to the Canadian Rockies. Tap a pin to jump to that story.</p>
           </div>
           <div class="jbig__legend">
-            <span class="chip chip--magenta">Malaysia</span>
-            <span class="chip chip--teal">Singapore</span>
-            <span class="chip chip--coral"><span class="live-dot"></span>&nbsp;Canada · live</span>
+            <span class="chip chip--magenta" data-trip="malaysia" role="button" tabindex="0" aria-pressed="false">Malaysia</span>
+            <span class="chip chip--teal" data-trip="singapore" role="button" tabindex="0" aria-pressed="false">Singapore</span>
+            <span class="chip chip--coral" data-trip="canada" role="button" tabindex="0" aria-pressed="false"><span class="live-dot"></span>&nbsp;Canada · live</span>
           </div>
         </div>
 
-        <JourneyMap entries={mapEntries} liveSlug={liveSlug} variant="full" />
-
-        <p class="jbig__note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            ><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16.5v.01"></path></svg
-          >
-          {mapEntries.length} stops pinned · the coral one is where I'm standing right now.
-        </p>
+        <div class="jbig__field">
+          <WorldMap countries={visited} variant="full" />
+        </div>
       </div>
     </div>
   </section>
@@ -81,11 +84,18 @@ const countFor = (key: string) => entries.filter((e) => e.tripKey === key).lengt
 </Layout>
 
 <script>
-  // Browse-by-trip filter: toggles cards, syncs the ?trip= query, supports deep links.
+  // Browse-by-trip filter, linked BOTH ways to the world map:
+  //  - selecting a tab (or arriving via ?trip=) highlights that country on the map
+  //  - clicking a country on the map filters the cards + updates the active tab
   const bar = document.getElementById('filterbar');
   const cards = Array.from(document.querySelectorAll<HTMLElement>('#entries .entry-card'));
   const empty = document.getElementById('empty');
-  const valid = ['malaysia', 'singapore', 'canada'];
+  const mapEls = Array.from(document.querySelectorAll<SVGElement>('#map [data-key]'));
+  // The country legend above the map — the same selection control, sitting next to the map.
+  const legendEls = Array.from(document.querySelectorAll<HTMLElement>('#map .jbig__legend [data-trip]'));
+  const valid = Array.from(bar?.querySelectorAll('.ftab[data-trip]') ?? [])
+    .map((b) => b.getAttribute('data-trip') ?? '')
+    .filter((t) => t && t !== 'all');
 
   function apply(trip: string) {
     let shown = 0;
@@ -100,14 +110,53 @@ const countFor = (key: string) => entries.filter((e) => e.tripKey === key).lengt
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    mapEls.forEach((el) => {
+      const on = trip !== 'all' && el.getAttribute('data-key') === trip;
+      el.classList.toggle('is-selected', on);
+    });
+    legendEls.forEach((el) => {
+      const on = el.getAttribute('data-trip') === trip;
+      el.classList.toggle('is-active', on);
+      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
     history.replaceState(null, '', trip === 'all' ? location.pathname + location.hash : '?trip=' + trip);
+  }
+
+  function scrollToEntries() {
+    document.getElementById('entries')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   bar?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('.ftab');
     if (!btn) return;
     apply(btn.getAttribute('data-trip') || 'all');
-    document.getElementById('entries')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToEntries();
+  });
+
+  mapEls.forEach((el) => {
+    const key = el.getAttribute('data-key');
+    if (!key) return;
+    el.addEventListener('click', () => { apply(key); scrollToEntries(); });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        apply(key);
+        scrollToEntries();
+      }
+    });
+  });
+
+  // Legend chips: clicking one highlights its country on the map (and filters the
+  // stories below). Clicking the active chip again clears back to "all". No scroll —
+  // the point is to watch the map light up, which sits right below the legend.
+  legendEls.forEach((el) => {
+    const key = el.getAttribute('data-trip');
+    if (!key) return;
+    const toggle = () => apply(el.classList.contains('is-active') ? 'all' : key);
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
   });
 
   const q = new URLSearchParams(location.search).get('trip');

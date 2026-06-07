@@ -1,0 +1,142 @@
+---
+// Static, theme-styled world choropleth. Visited countries (from trip regions)
+// are filled in their trip color; the rest of the world is gray. The map is
+// generated at BUILD TIME with d3-geo — the browser receives only SVG markup.
+//
+//   variant="teaser" -> static; visited countries are <a> deep-links to /journey
+//   variant="full"   -> visited countries carry data-key; the Journey filter
+//                       script wires tab <-> map highlight both directions.
+import type { VisitedCountry, TripColor } from '@/lib/types';
+import { feature } from 'topojson-client';
+import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
+import world from 'world-atlas/countries-110m.json';
+
+interface Props {
+  countries: VisitedCountry[];
+  variant?: 'full' | 'teaser';
+}
+const { countries, variant = 'full' } = Astro.props;
+
+const COLOR_HEX: Record<TripColor, string> = {
+  coral: '#FF6A4D',
+  teal: '#16B3A7',
+  magenta: '#F0407F',
+  gold: '#FFB22E',
+};
+
+const W = 1000;
+const H = 500; // projection fit height; Antarctica lands in the 450–500 band
+const VB_H = 450; // visible viewBox height — crops that Antarctic band off the bottom
+
+const topo = world as any;
+const land: any = feature(topo, topo.objects.countries);
+const projection = geoNaturalEarth1().fitSize([W, H], { type: 'Sphere' } as any);
+const path = geoPath(projection as any);
+
+const spherePath = path({ type: 'Sphere' } as any) ?? '';
+const graticulePath = path(geoGraticule10()) ?? '';
+
+const visitedByIso = new Map(countries.map((c) => [c.iso, c]));
+const countryPaths = land.features.map((f: any) => ({
+  d: path(f) ?? '',
+  visited: visitedByIso.get(String(f.id)) as VisitedCountry | undefined,
+}));
+
+const rings = countries
+  .filter((c) => c.marker)
+  .map((c) => {
+    const xy = projection(c.marker as [number, number]);
+    return { c, x: xy?.[0] ?? 0, y: xy?.[1] ?? 0 };
+  });
+
+const summary = countries.map((c) => c.region).join(', ');
+const href = (key: string) => `/journey?trip=${key}#map`;
+---
+<div class:list={['wm', `wm--${variant}`]}>
+  <svg
+    class="wm__svg"
+    viewBox={`0 0 ${W} ${VB_H}`}
+    role="img"
+    aria-label={`World map highlighting countries visited: ${summary}.`}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path class="wm__sphere" d={spherePath} />
+    <path class="wm__grat" d={graticulePath} aria-hidden="true" />
+    <g class="wm__land">
+      {countryPaths.map((cp) =>
+        cp.visited ? (
+          variant === 'teaser' ? (
+            <a href={href(cp.visited.key)} aria-label={`Stories from ${cp.visited.region}`}>
+              <path
+                class="wm__country wm__country--visited"
+                d={cp.d}
+                data-key={cp.visited.key}
+                style={`--fill:${COLOR_HEX[cp.visited.color]}`}
+              />
+            </a>
+          ) : (
+            <path
+              class="wm__country wm__country--visited"
+              d={cp.d}
+              data-key={cp.visited.key}
+              style={`--fill:${COLOR_HEX[cp.visited.color]}`}
+              role="button"
+              tabindex="0"
+              aria-label={`Filter stories: ${cp.visited.region}`}
+            />
+          )
+        ) : (
+          <path class="wm__country" d={cp.d} aria-hidden="true" />
+        )
+      )}
+    </g>
+    <g class="wm__rings">
+      {rings.map((r) =>
+        variant === 'teaser' ? (
+          <a href={href(r.c.key)} aria-label={`Stories from ${r.c.region}`}>
+            <circle class="wm__ring" cx={r.x} cy={r.y} r="7" data-key={r.c.key} style={`--fill:${COLOR_HEX[r.c.color]}`} />
+          </a>
+        ) : (
+          <circle
+            class="wm__ring"
+            cx={r.x}
+            cy={r.y}
+            r="7"
+            data-key={r.c.key}
+            style={`--fill:${COLOR_HEX[r.c.color]}`}
+            role="button"
+            tabindex="0"
+            aria-label={`Filter stories: ${r.c.region}`}
+          />
+        )
+      )}
+    </g>
+  </svg>
+</div>
+
+<style is:global>
+  .wm { width: 100%; align-self: center; }
+  .wm__svg { width: 100%; height: auto; display: block; }
+  .wm__sphere { fill: #fff; }
+  .wm__grat { fill: none; stroke: rgba(43, 35, 66, 0.12); stroke-width: 0.5; }
+  .wm__country { fill: #dcd7cf; stroke: #fff; stroke-width: 0.5; }
+  .wm__country--visited {
+    fill: var(--fill);
+    fill-opacity: 0.55;
+    transition: fill-opacity 0.15s ease;
+  }
+  .wm--full .wm__country--visited { cursor: pointer; }
+  .wm--full .wm__country--visited:hover { fill-opacity: 0.82; }
+  .wm__country--visited.is-selected { fill-opacity: 1; stroke: var(--plum); stroke-width: 1.4; }
+  .wm__ring {
+    fill: var(--fill);
+    fill-opacity: 0.6;
+    stroke: #fff;
+    stroke-width: 1.5;
+    transition: fill-opacity 0.15s ease;
+  }
+  .wm--full .wm__ring { cursor: pointer; }
+  .wm--full .wm__ring:hover { fill-opacity: 0.9; }
+  .wm__ring.is-selected { fill-opacity: 1; stroke: var(--plum); stroke-width: 2; }
+  .wm [role="button"]:focus-visible { outline: 2px solid var(--plum); outline-offset: 1px; }
+</style>

@@ -3,12 +3,12 @@ import Layout from '@/layouts/Layout.astro';
 import '@/styles/pages.css';
 import Polaroid from '@/components/Polaroid.astro';
 import Stamp from '@/components/Stamp.astro';
-import { getCurrentTrip, getEntries, dayNumber } from '@/lib/content';
+import { getCurrentTrip, getEntries, getSiteSettings } from '@/lib/content';
 
 const current = await getCurrentTrip();
 const entries = await getEntries();
+const site = await getSiteSettings();
 const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
-const day = current ? dayNumber(current.startDate) : 14;
 const currentPlace = liveEntry?.location?.name ?? 'Banff, Alberta';
 const region = current?.region ?? 'Canada';
 ---
@@ -33,8 +33,9 @@ const region = current?.region ?? 'Canada';
           tapeStyle="top:-14px;left:34%;transform:rotate(-5deg);"
           tint="gold"
           labelPin
+          image={site.portrait?.asset}
           label="portrait photo · me, somewhere scenic"
-          alt="A portrait of Vito, somewhere scenic"
+          alt={site.portrait?.alt ?? 'A portrait of Vito, somewhere scenic'}
           caption="that's me ✦"
         />
         <Stamp big="EST." variant="teal" tilt="l">on the<br />road</Stamp>
@@ -65,7 +66,7 @@ const region = current?.region ?? 'Canada';
         <div class="nowcard">
           <span class="tape tape--coral"></span>
           <h3>Currently</h3>
-          <div class="big">Day {day}<br />in {region}</div>
+          <div class="big">In {region}</div>
           <p>Chasing alpine sunrises, dodging elk, and writing this from a cabin with surprisingly good wifi.</p>
         </div>
       </div>
@@ -80,8 +81,8 @@ const region = current?.region ?? 'Canada';
         <h2 class="script h-lg">Where I've wandered</h2>
       </div>
       <div class="stamps">
-        <Stamp big="MY" variant="magenta" tilt="l">Malaysia<br />3 weeks</Stamp>
-        <Stamp big="SG" variant="teal" tilt="r">Singapore<br />5 days</Stamp>
+        <Stamp big="MY" variant="magenta" tilt="l">Malaysia<br />7 days</Stamp>
+        <Stamp big="SG" variant="teal" tilt="r">Singapore<br />11 days</Stamp>
         <Stamp big="CA" variant="coral" tilt="l2">Canada<br />live now</Stamp>
         <Stamp big="?" tilt="r2" style="background:#fff;color:var(--plum-soft);border-style:dotted;">up<br />next</Stamp>
       </div>
@@ -95,13 +96,13 @@ const region = current?.region ?? 'Canada';
       <h2 class="script" style="color:#fff;font-size:clamp(40px,6vw,76px);line-height:.95;">Come say hi</h2>
       <p style="color:rgba(255,255,255,.88);max-width:44ch;font-weight:600;">Got a tip, a question, or a couch in a city I'm about to ruin? I read everything — even if I reply three time zones late.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
-        <a href="#" class="btn btn--coral btn--lg"
+        <a href="mailto:vito.zbw@gmail.com" class="btn btn--coral btn--lg"
           >Send a postcard
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
             ><path d="M5 12h14M13 6l6 6-6 6"></path></svg
           >
         </a>
-        <a href="#" class="btn btn--gold btn--lg">Find me on Instagram</a>
+        <a href="https://www.instagram.com/vito_baiwei/" target="_blank" rel="me noopener noreferrer" class="btn btn--gold btn--lg">Find me on Instagram</a>
       </div>
     </div>
   </section>

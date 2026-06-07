@@ -110,3 +110,30 @@ export interface Entry {
   featured: boolean;
   readMins: number;
 }
+
+/** Headline counts for the homepage stat ribbon, all derived from real content. */
+export interface SiteStats {
+  /** Distinct continents visited. */
+  continents: number;
+  /** Distinct visited countries. */
+  countries: number;
+  /** Total entries written. */
+  stories: number;
+  /** Total images shown across all entries (cover + body galleries/images). */
+  photos: number;
+}
+
+/**
+ * One visited country, derived from a trip's `region` — drives the world map.
+ * `iso` is the ISO 3166-1 *numeric* code as a string (matches world-atlas ids).
+ */
+export interface VisitedCountry {
+  /** lowercased region, matches the filter tab data-trip + map data-key: malaysia | singapore | canada */
+  key: string;
+  region: string; // "Canada"
+  color: TripColor; // 'coral'
+  iso: string; // "124"
+  live: boolean; // region's trip has an empty endDate
+  /** [lng, lat] for a locator ring when the polygon is missing/too small (e.g. Singapore). */
+  marker?: [number, number];
+}

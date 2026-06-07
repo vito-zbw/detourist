@@ -14,17 +14,22 @@
     "import:convert": "tsx scripts/import/convert.ts",
     "import:validate": "tsx scripts/import/validate.ts",
     "import:load:dry": "tsx scripts/import/load.ts --dry-run",
-    "import:load": "tsx scripts/import/load.ts"
+    "import:load": "tsx scripts/import/load.ts",
+    "upload:site": "tsx scripts/site/upload-site.ts"
   },
   "dependencies": {
     "@sanity/client": "^6.22.5",
     "@sanity/image-url": "^1.1.0",
     "astro": "^5.2.5",
-    "maplibre-gl": "^4.7.1"
+    "d3-geo": "^3.1.1",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@types/d3-geo": "^3.1.0",
     "@types/node": "^22.19.20",
+    "@types/topojson-client": "^3.1.5",
     "dotenv": "^17.4.2",
     "node-html-parser": "^7.1.0",
     "tsx": "^4.22.4",

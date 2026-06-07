@@ -33,3 +33,11 @@ export const ENTRIES_QUERY = /* groq */ `
   "tripSlug": trip->slug.current,
   "tripRegion": trip->region
 }`;
+
+export const SITE_SETTINGS_QUERY = /* groq */ `
+*[_type == "siteSettings"][0]{
+  portrait{ ..., "alt": coalesce(alt, "") },
+  journeyHero{ ..., "alt": coalesce(alt, "") },
+  homeHeroPrimary{ ..., "alt": coalesce(alt, "") },
+  homeHeroSecondary{ ..., "alt": coalesce(alt, "") }
+}`;

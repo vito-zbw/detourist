@@ -21,3 +21,7 @@ AppleJournalEntries/
 # import pipeline artifacts
 scripts/import/.cache/
 scripts/import/manifest.json
+
+# site-image upload artifacts (machine-specific local paths)
+scripts/site/.cache/
+scripts/site/site-images.json

@@ -4,21 +4,22 @@ import '@/styles/home.css';
 import EntryCard from '@/components/EntryCard.astro';
 import PhotoSlot from '@/components/PhotoSlot.astro';
 import Stamp from '@/components/Stamp.astro';
-import JourneyMap from '@/components/JourneyMap.astro';
-import { getCurrentTrip, getFeaturedEntries, getTrips, getEntries, getMapEntries } from '@/lib/content';
+import WorldMap from '@/components/WorldMap.astro';
+import { getCurrentTrip, getFeaturedEntries, getTrips, getEntries, getVisitedCountries, getSiteStats, getSiteSettings, formatCount, countLabel } from '@/lib/content';
 import type { SlotTint } from '@/lib/types';
 
 const current = await getCurrentTrip();
 const featured = await getFeaturedEntries(3);
 const trips = await getTrips();
 const entries = await getEntries();
-const mapEntries = await getMapEntries();
+const visited = await getVisitedCountries();
+const stats = await getSiteStats();
+const site = await getSiteSettings();
 
 // entries are newest-first; the first one in the current trip is "live"
 const latest = entries[0];
 const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
-const liveSlug = liveEntry?.slug;
-const heroLocation = current?.region ?? 'Canada';
+const heroLocation = liveEntry?.location?.name ?? 'somewhere with mountains';
 
 // browse-by-trip cards read best chronologically, ending on the live trip
 const tripCards = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
@@ -51,16 +52,17 @@ const tripCards = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse
       <div class="hero__right">
         <div class="hero__collage">
           <div class="hero__stamp">
-            <Stamp big={current?.region ?? 'Canada'} tilt="l" style="background:var(--plum);color:#fff;border-color:rgba(255,255,255,.55);">on the road</Stamp>
+            <Stamp big="" tilt="l" style="background:var(--plum);color:#fff;border-color:rgba(255,255,255,.55);">on the road</Stamp>
           </div>
           <div class="polaroid p1 tilt-r">
             <span class="tape tape--gold" style="top:-14px;left:34%;transform:rotate(-5deg);"></span>
-            <PhotoSlot tint="teal" pin label="hero photo · me at Moraine Lake" alt="Vito at Moraine Lake" />
-            <div class="polaroid__cap">Moraine Lake, day one ✦</div>
+            <PhotoSlot image={site.homeHeroPrimary?.asset} tint="teal" pin label="hero photo · Marina Bay Sands" alt={site.homeHeroPrimary?.alt ?? 'Marina Bay Sands, Singapore'} />
+            <div class="polaroid__cap">Marina Bay Sands ✦</div>
           </div>
           <div class="polaroid p2 tilt-l2">
             <span class="pin pin--gold" style="top:-12px;left:50%;transform:translateX(-50%);"></span>
-            <PhotoSlot tint="gold" label="roadside diner stop" alt="A roadside diner stop" />
+            <PhotoSlot image={site.homeHeroSecondary?.asset} tint="gold" label="Singapore sunset" alt={site.homeHeroSecondary?.alt ?? 'Singapore skyline at sunset'} />
+            <div class="polaroid__cap">golden hour over the bay</div>
           </div>
           <span class="hero__scrap">eh? 🍁</span>
         </div>
@@ -71,13 +73,13 @@ const tripCards = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse
   <!-- STAT RIBBON -->
   <section class="statbar">
     <div class="wrap statbar__row">
-      <div class="stat"><span class="stat__num c1">3</span><span class="stat__lbl">countries</span></div>
+      <div class="stat"><span class="stat__num c1">{stats.continents}</span><span class="stat__lbl">{stats.continents === 1 ? 'continent' : 'continents'}</span></div>
       <span class="stat__sep"></span>
-      <div class="stat"><span class="stat__num c2">14</span><span class="stat__lbl">stops on the map</span></div>
+      <div class="stat"><span class="stat__num c2">{stats.countries}</span><span class="stat__lbl">{stats.countries === 1 ? 'country' : 'countries'}</span></div>
       <span class="stat__sep"></span>
-      <div class="stat"><span class="stat__num c3">48</span><span class="stat__lbl">stories written</span></div>
+      <div class="stat"><span class="stat__num c3">{stats.stories}</span><span class="stat__lbl">{stats.stories === 1 ? 'story' : 'stories'}</span></div>
       <span class="stat__sep"></span>
-      <div class="stat"><span class="stat__num c4">2.1k</span><span class="stat__lbl">photos &amp; counting</span></div>
+      <div class="stat"><span class="stat__num c4">{formatCount(stats.photos)}</span><span class="stat__lbl">{stats.photos === 1 ? 'photo' : 'photos'}</span></div>
     </div>
   </section>
 
@@ -129,11 +131,11 @@ const tripCards = [...trips].sort((a, b) => Date.parse(a.startDate) - Date.parse
     <div class="wrap">
       <div class="jmap">
         <div class="jmap-grid">
-          <JourneyMap entries={mapEntries} liveSlug={liveSlug} variant="teaser" />
+          <WorldMap countries={visited} variant="teaser" />
           <div class="jmap__side">
-            <span class="eyebrow" style="color:rgba(255,255,255,.85);">Every pin tells a story</span>
+            <span class="eyebrow" style="color:rgba(255,255,255,.85);">Every country tells a story</span>
             <h2 class="script h-md" style="color:#fff;">Follow my<br />journey</h2>
-            <p style="color:rgba(255,255,255,.9);">Three countries, fourteen stops, and a route that made almost no logistical sense. Tap any pin to read what happened there.</p>
+            <p style="color:rgba(255,255,255,.9);">{countLabel(stats.countries, 'country', 'countries')}, {countLabel(stats.stories, 'story', 'stories')}, and a route that made almost no logistical sense. Tap a country to read those stories.</p>
             <a href="/journey#map" class="btn btn--gold" style="align-self:flex-start;">Explore the map</a>
           </div>
         </div>
