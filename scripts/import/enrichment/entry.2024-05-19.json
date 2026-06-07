@@ -1,0 +1,27 @@
+{
+  "_id": "entry.2024-05-19",
+  "title": "Squirrels, Macaws, and Creatures of the Night",
+  "excerpt": "I spent a full day at Singapore Zoo and Night Safari — and accidentally stepped on a squirrel, sending me into a guilt spiral that only the kindness of strangers could fix.",
+  "photos": [
+    {
+      "uuid": "3E098887-9C91-4FA4-B0DF-5C088D631783",
+      "alt": "Visitors queuing at the entrance of Singapore Zoo beneath a large red logo sign with a leaping orangutan mascot"
+    },
+    {
+      "uuid": "6D03E03F-E5BD-42F1-AA6F-61F791EF6DB8",
+      "alt": "Interior of a Singapore MRT car with teal seats, a display reading 'Next Station Newton', and a passenger reading on his phone"
+    },
+    {
+      "uuid": "CBF50E66-C14E-4772-B1C1-CB89C1FCB695",
+      "alt": "A blue-and-yellow macaw and a scarlet macaw perched side by side on a wooden railing against lush tropical greenery"
+    },
+    {
+      "uuid": "6E064D52-2EC8-4814-9AE6-90DA161DF400",
+      "alt": "A large orangutan resting face-down on bamboo poles inside a rainforest enclosure, its long reddish fur covering most of its body"
+    },
+    {
+      "uuid": "12553AF0-3D54-414E-B920-36B29C1E5CC8",
+      "alt": "Two pig-like babirusas walking across a yellow-lit rocky stage inside the Night Safari after-dark enclosure"
+    }
+  ]
+}
