@@ -7,11 +7,11 @@ import { schemaTypes } from './sanity/schema';
 // mobile app — and is the single source of truth for content. Astro reads the
 // same dataset at build time (see src/lib/sanity.ts).
 //
-// To run / deploy the Studio (studio-only deps, intentionally kept OUT of the
-// Astro build's package.json — install them locally first):
-//   npm i --no-save sanity @sanity/vision react react-dom styled-components
-//   npx sanity dev      # local at http://localhost:3333
-//   npx sanity deploy   # hosted at detourist.sanity.studio (see sanity.cli.ts)
+// Studio-only deps (sanity, @sanity/vision, react, react-dom, styled-components)
+// live in devDependencies — they are NOT imported by the Astro site, so they're
+// never bundled into the static build (only installed during CI).
+//   npm run studio:dev      # local at http://localhost:3333
+//   npm run studio:deploy   # hosted at detourist.sanity.studio (see sanity.cli.ts)
 export default defineConfig({
   name: 'detourist',
   title: 'Detourist',

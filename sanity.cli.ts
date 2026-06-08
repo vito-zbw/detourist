@@ -10,5 +10,5 @@ export default defineCliConfig({
     dataset: 'production',
   },
   studioHost: 'detourist',
-  autoUpdates: true,
+  deployment: { autoUpdates: true, appId: 'crazlrlscs9pmtla8gwfsvpp' },
 });

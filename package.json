@@ -29,11 +29,16 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@sanity/vision": "^5.30.0",
     "@types/d3-geo": "^3.1.0",
     "@types/node": "^22.19.20",
     "@types/topojson-client": "^3.1.5",
     "dotenv": "^17.4.2",
     "node-html-parser": "^7.1.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "sanity": "^5.30.0",
+    "styled-components": "^6.4.2",
     "tsx": "^4.22.4",
     "typescript": "^5.7.3",
     "vitest": "^4.1.8"
