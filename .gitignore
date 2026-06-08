@@ -15,6 +15,9 @@ node_modules/
 *.log
 .vscode/
 
+# brainstorming visual companion mockups
+.superpowers/
+
 # personal journal source data — not deployed (site reads from Sanity)
 AppleJournalEntries/
 
