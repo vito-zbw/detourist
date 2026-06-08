@@ -12,14 +12,14 @@ const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : u
 const currentPlace = liveEntry?.location?.name ?? 'Banff, Alberta';
 const region = current?.region ?? 'Canada';
 ---
-<Layout title="About — Detourist" active="about" description="Hey, I'm Vito — the serial detour-taker behind Detourist.">
+<Layout title="About — Detourist" active="about" description="Hey, I'm Vito — comp-sci grad student, rookie skater, and the detour-taker behind Detourist.">
   <!-- ABOUT HERO -->
   <section class="about-hero bg-paper2">
     <div class="wrap about-hero__split">
       <div class="about-hero__copy">
-        <span class="eyebrow">The human behind the pins</span>
+        <span class="eyebrow">Comp sci by day · detours by train</span>
         <h1 class="about__name">Hey, I'm <span class="accent">Vito</span></h1>
-        <p class="about-hero__lead">A serial detour-taker currently writing my way around the world, one slightly-too-honest dispatch at a time.</p>
+        <p class="about-hero__lead">By day I teach computers to be clever. By every other hour, I'm trying to convince a hockey puck to go where I'm pointing — and, honestly, the computers are winning.</p>
         <div class="hero__cta" style="display:flex;gap:12px;flex-wrap:wrap;">
           <a href="/journey" class="btn btn--coral btn--lg">Read the stories</a>
           <a href="#say-hi" class="btn btn--ghost btn--lg">Say hi</a>
@@ -46,16 +46,16 @@ const region = current?.region ?? 'Canada';
   <!-- BIO -->
   <section class="section bg-paper">
     <div class="wrap about-body">
-      <p class="dropcap">I didn't set out to be a travel writer. I set out to take a two-week holiday, took a wrong turn at a night market in Penang, and somehow never fully came back. These days "home" is wherever my charger is plugged in, and the blog is how I keep my friends — and apparently a few kind strangers — in the loop.</p>
-      <p>I'm not here to sell you a ten-step itinerary or the perfect packing list. I'm here for the in-between bits: the diner with the suspicious coffee, the bus driver who took the corners too fast, the sunrise I almost slept through. The plans rarely survive contact with reality, and honestly that's become my favourite part.</p>
-      <p class="pull">If it's a little messy and mostly true, it'll probably end up here.</p>
-      <p>Right now I'm deep in the Canadian Rockies, eating my body weight in baked goods and pretending I know how to read a trail map. You can follow the live trip on the <a href="/journey#map">journey map</a>, or start from the very beginning back in Malaysia.</p>
+      <p class="dropcap">I'm a Master of Science in Applied Computing student at the University of Toronto — which is a very formal way of saying I spend my days thinking about how machines think, then booking a train somewhere far away so I can stop thinking entirely. This site is the "somewhere": the wrong platforms, the windows fogged with breakfast, the long quiet hours that never quite fit inside a lecture hall.</p>
+      <h2>A few true <span class="sw">things</span> about me</h2>
+      <p><strong>I've been playing ice hockey for about six months</strong> — long enough to skate, fall, and apologize to the ice, usually in that order. So naturally the sensible next move was to plan a solo trip across the country that <em>invented</em> the sport. No notes.</p>
+      <p><strong>I watch films like there's an exam afterward.</strong> I'll pause on a single cut and turn it over for ten quiet minutes. Whether that's a personality or a diagnosable condition is still being litigated (by me). The upside: I catch the cinematic little moments when I travel. The light. The framing. The strangers who'd make excellent extras.</p>
 
       <div class="about-cards">
         <div class="factcard">
           <h3>The quick facts</h3>
           <div class="facts">
-            <div class="row"><span class="k">Currently</span><span class="v">{currentPlace} 🍁</span></div>
+            <div class="row"><span class="k">Last stop</span><span class="v">{currentPlace} 🍁</span></div>
             <div class="row"><span class="k">Home base</span><span class="v">wherever the charger is</span></div>
             <div class="row"><span class="k">Trips logged</span><span class="v">Malaysia · Singapore · Canada</span></div>
             <div class="row"><span class="k">Camera</span><span class="v">whatever's in my pocket</span></div>
@@ -65,11 +65,22 @@ const region = current?.region ?? 'Canada';
         </div>
         <div class="nowcard">
           <span class="tape tape--coral"></span>
-          <h3>Currently</h3>
-          <div class="big">In {region}</div>
+          <h3>Last stop at</h3>
+          <div class="big">{region}</div>
           <p>Chasing alpine sunrises, dodging elk, and writing this from a cabin with surprisingly good wifi.</p>
         </div>
       </div>
+
+      <h2>What this place <span class="sw">is</span></h2>
+      <p>Back in 2024 I wandered through <strong>Malaysia and Singapore</strong> and kept diaries I never showed a single soul. They're here now, dusted off and slightly embarrassing in the best way.</p>
+      <p>What's'next is bigger and a lot more daunting: a <strong>solo trip across Canada</strong>, documented close to real time, if I happen to have signal.</p>
+
+      <div class="tip">
+        <div class="tip__k">A note on the robots 🤖</div>
+        <p>I study computer science, so it'd be extremely on-brand to pretend a lone genius hand-coded this whole thing by candlelight. The truth is friendlier: I built this site with AI, and some of the words here had an AI co-pilot too. The living, the falling on the ice, the questionable hostels — those are all me. The machines just helped hold the ladder. It seemed only fair that someone studying this stuff should be the one to say so out loud.</p>
+      </div>
+
+      <p>Anyway — pull up a chair, ideally with a flat white. Glad you're here.</p>
     </div>
   </section>
 
@@ -94,7 +105,7 @@ const region = current?.region ?? 'Canada';
     <div class="wrap" style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
       <span class="eyebrow" style="color:var(--gold);">Don't be a stranger</span>
       <h2 class="script" style="color:#fff;font-size:clamp(40px,6vw,76px);line-height:.95;">Come say hi</h2>
-      <p style="color:rgba(255,255,255,.88);max-width:44ch;font-weight:600;">Got a tip, a question, or a couch in a city I'm about to ruin? I read everything — even if I reply three time zones late.</p>
+      <p style="color:rgba(255,255,255,.88);max-width:46ch;font-weight:600;">Got a tip, a question, a film I absolutely have to watch, or a couch in a city I'm about to ruin? I read everything — even if I reply three time zones late.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
         <a href="mailto:vito.zbw@gmail.com" class="btn btn--coral btn--lg"
           >Send a postcard

@@ -103,7 +103,8 @@ function computeReadMins(body: PortableBlock[], excerpt: string): number {
 function computeDuration(startDate: string, endDate: string | null): string {
   if (!endDate) return 'ongoing';
   const ms = Date.parse(endDate) - Date.parse(startDate);
-  const days = Math.max(1, Math.round(ms / 86_400_000));
+  // Inclusive day count: a trip from the 8th to the 14th spans 7 days, not 6 nights.
+  const days = Math.max(1, Math.round(ms / 86_400_000) + 1);
   if (days < 14) return `${days} day${days === 1 ? '' : 's'}`;
   return `${Math.round(days / 7)} weeks`;
 }

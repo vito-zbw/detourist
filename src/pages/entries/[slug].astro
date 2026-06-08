@@ -48,6 +48,13 @@ const { entry, related, prev, next, tripStart } = Astro.props;
 const dayInTrip = tripStart
   ? Math.max(1, Math.floor((Date.parse(entry.date) - Date.parse(tripStart)) / 86_400_000) + 1)
   : null;
+
+// Absolute, shareable permalink for this entry. Astro.site is the configured
+// production origin (astro.config.mjs); resolve it once for the share button
+// (progressive enhancement falls back to navigating here) and the email link.
+const shareUrl = new URL(`/entries/${entry.slug}`, Astro.site).href;
+const mailBody = `${entry.excerpt ? entry.excerpt + '\n\n' : ''}${shareUrl}`;
+const mailHref = `mailto:?subject=${encodeURIComponent(entry.title)}&body=${encodeURIComponent(mailBody)}`;
 ---
 <Layout title={`${entry.title} — Detourist`} description={entry.excerpt}>
   <article>
@@ -93,15 +100,15 @@ const dayInTrip = tripStart
         {entry.location && <span class="chip chip--paper">{entry.location.name}</span>}
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <span class="eyebrow" style="color:var(--plum-soft);">Share</span>
-        <a href="#" aria-label="Share"
+        <span class="eyebrow" data-share-label style="color:var(--plum-soft);">Share</span>
+        <a href={shareUrl} data-share-title={entry.title} class="share-btn" aria-label="Share this entry"
           ><span style="width:40px;height:40px;border-radius:50%;background:var(--plum);display:grid;place-content:center;"
             ><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
               ><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle></svg
             ></span
           ></a
         >
-        <a href="#" aria-label="Email"
+        <a href={mailHref} aria-label="Share by email"
           ><span style="width:40px;height:40px;border-radius:50%;background:var(--coral);display:grid;place-content:center;"
             ><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
               ><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg
@@ -143,3 +150,50 @@ const dayInTrip = tripStart
 
   <Lightbox />
 </Layout>
+
+<script>
+  // Wire up the "Share" button. The anchor already ships a real permalink in
+  // its href, so this is pure progressive enhancement:
+  //   • mobile / supporting browsers → native OS share sheet (navigator.share)
+  //   • desktop → copy the link to the clipboard, with a brief confirmation
+  //   • no JS / neither API → the <a href> just opens the permalink
+  const shareBtn = document.querySelector<HTMLAnchorElement>('a.share-btn');
+  const shareLabel = document.querySelector<HTMLElement>('[data-share-label]');
+
+  if (shareBtn) {
+    const defaultLabel = shareLabel?.textContent ?? 'Share';
+
+    function flash(message: string) {
+      if (!shareLabel) return;
+      shareLabel.textContent = message;
+      setTimeout(() => { shareLabel.textContent = defaultLabel; }, 1600);
+    }
+
+    shareBtn.addEventListener('click', async (e) => {
+      const url = shareBtn.href; // browser resolves this to an absolute URL
+      const title = shareBtn.dataset.shareTitle || document.title;
+
+      if (navigator.share) {
+        e.preventDefault();
+        try {
+          await navigator.share({ title, url });
+          return;
+        } catch (err) {
+          // User dismissed the share sheet — leave the page as it was.
+          if ((err as { name?: string })?.name === 'AbortError') return;
+          // Any other failure: fall through to the clipboard path below.
+        }
+      }
+
+      if (navigator.clipboard?.writeText) {
+        e.preventDefault();
+        try {
+          await navigator.clipboard.writeText(url);
+          flash('Link copied!');
+        } catch {
+          // Clipboard blocked — let the link navigate as a last resort.
+        }
+      }
+    });
+  }
+</script>

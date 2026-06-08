@@ -154,6 +154,10 @@
 .about-body p{font-size:19px;line-height:1.7;color:var(--ink);margin:0 0 22px;}
 .about-body p.dropcap::first-letter{font-family:var(--display);font-size:74px;line-height:.7;float:left;margin:8px 12px 0 0;color:var(--coral);font-weight:700;}
 .about-body a{color:var(--coral-deep);text-decoration:underline;text-underline-offset:3px;font-weight:700;}
+.about-body h2{font-family:var(--display);font-weight:700;font-size:clamp(34px,5vw,56px);line-height:.98;color:var(--plum);margin:42px 0 14px;}
+.about-body h2 .sw{color:var(--coral);}
+.about-body strong{color:var(--plum);font-weight:900;}
+.about-body em{font-style:italic;}
 
 /* facts + currently cards */
 .about-cards{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin:8px 0 6px;}

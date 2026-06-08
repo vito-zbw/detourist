@@ -26,7 +26,7 @@ export const trip = defineType({
       title: 'End date',
       type: 'date',
       description:
-        'Leave EMPTY for the ongoing trip. An empty end date marks the current trip and drives the "Currently in …" homepage hero.',
+        'Leave EMPTY for the ongoing trip. An empty end date marks the current trip and drives the "Last stop at …" homepage hero.',
     }),
     defineField({
       name: 'coverImage',
