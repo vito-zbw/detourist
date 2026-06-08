@@ -10,7 +10,9 @@
 
 **Spec:** `docs/superpowers/specs/2026-06-08-entry-image-lightbox-design.md`
 
-**Testing convention:** This project unit-tests pure TS logic with vitest (`npm test`) — see `scripts/import/*.test.ts`. There is no component/DOM test harness, and adding one (jsdom/Playwright) for this small feature is out of scope. So Task 1 is full TDD; the Astro/DOM tasks are verified with `npm run check` (astro check / tsc) + `npm run build` + a manual smoke test (Task 6). Behavioral verification needs real images — seed mode has `asset: null` everywhere, so no `<img>`s render locally without Sanity creds.
+**Testing convention:** This project unit-tests pure TS logic with vitest (`npm test`) — see `scripts/import/*.test.ts`. There is no component/DOM test harness, and adding one (jsdom/Playwright) for this small feature is out of scope. So Task 1 is full TDD; the Astro/DOM tasks are verified with `npm run build` + `npm run check` + a manual smoke test (Task 6). Behavioral verification needs real images — seed mode has `asset: null` everywhere, so no `<img>`s render locally without Sanity creds.
+
+**Verification baseline (measured 2026-06-08):** `npm run build` **passes** and is the hard gate (Astro's build does not type-check). `npm run check` reports **10 pre-existing errors, all in `src/components/WorldMap.astro`** (implicit-`any` ts7006/ts7053) plus 1 unused-`Props` warning — these are unrelated to this feature. Therefore: run `npm run build` (must succeed) and `npm run check` **separately** (don't chain with `&&`, since check exits non-zero on the baseline). The pass condition for check is **no new errors and zero errors in any file this task touched** — the error list must stay confined to `WorldMap.astro` at 10 errors. Do **not** attempt to fix the WorldMap errors; they are out of scope.
 
 ---
 
@@ -236,8 +238,8 @@ Immediately after the `.photo-slot__img{...}` line (line 206), add:
 
 - [ ] **Step 3: Type-check and build**
 
-Run: `npm run check && npm run build`
-Expected: both succeed with no new errors. (Output is unchanged from before — no caller passes `zoomable` yet.)
+Run: `npm run build` then, separately, `npm run check`
+Expected: build succeeds; check still reports only the 10 pre-existing `WorldMap.astro` errors (none in `PhotoSlot.astro` or `blog.css`). Output is otherwise unchanged — no caller passes `zoomable` yet.
 
 - [ ] **Step 4: Commit**
 
@@ -402,8 +404,8 @@ Replace with:
 
 - [ ] **Step 4: Type-check and build**
 
-Run: `npm run check && npm run build`
-Expected: both succeed with no new errors. (Body photos in a Sanity-backed build now render as `[data-zoomable]` buttons; the cover photo and entry cards — which never pass `zoomable` — are unchanged.)
+Run: `npm run build` then, separately, `npm run check`
+Expected: build succeeds; check still reports only the 10 pre-existing `WorldMap.astro` errors (none in the three components you changed). Body photos in a Sanity-backed build now render as `[data-zoomable]` buttons; the cover photo and entry cards — which never pass `zoomable` — are unchanged.
 
 - [ ] **Step 5: Commit**
 
@@ -604,8 +606,8 @@ Create the single lightbox dialog, its scrapbook styling, and the vanilla script
 
 - [ ] **Step 2: Type-check and build**
 
-Run: `npm run check && npm run build`
-Expected: both succeed. The component is not imported anywhere yet, so its script does not run on any page.
+Run: `npm run build` then, separately, `npm run check`
+Expected: build succeeds; check still reports only the 10 pre-existing `WorldMap.astro` errors (none in `Lightbox.astro` or `src/lib/lightbox.ts`). The component is not imported anywhere yet, so its script does not run on any page.
 
 - [ ] **Step 3: Commit**
 
@@ -651,8 +653,8 @@ Replace with:
 
 - [ ] **Step 3: Type-check and build**
 
-Run: `npm run check && npm run build`
-Expected: both succeed. The built entry pages now include the `<dialog class="lightbox">` and the bundled script.
+Run: `npm run build` then, separately, `npm run check`
+Expected: build succeeds; check still reports only the 10 pre-existing `WorldMap.astro` errors (none in `[slug].astro`). The built entry pages now include the `<dialog class="lightbox">` and the bundled script.
 
 - [ ] **Step 4: Commit**
 
@@ -669,8 +671,8 @@ git commit -m "feat(lightbox): mount lightbox on entry pages" -m "Co-Authored-By
 
 - [ ] **Step 1: Run the full automated suite**
 
-Run: `npm test && npm run check && npm run build`
-Expected: vitest green (incl. `lightbox.test.ts`), astro check 0 errors, build succeeds.
+Run: `npm test`, then `npm run build`, then `npm run check` (separately).
+Expected: vitest green (incl. `lightbox.test.ts`); build succeeds; check reports only the 10 pre-existing `WorldMap.astro` errors and none in any lightbox file.
 
 - [ ] **Step 2: Manual smoke test (requires real images)**
 
