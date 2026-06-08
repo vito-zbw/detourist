@@ -144,9 +144,16 @@
     nextBtn.addEventListener('click', () => move(1));
     closeBtn.addEventListener('click', () => dialog.close());
 
-    // Click on the dimmed backdrop (the dialog element itself) closes it.
+    // Click on the dimmed backdrop closes — but only when the gesture both
+    // starts and ends on the dialog itself, so a drag that begins on the photo
+    // and releases on the backdrop doesn't misfire a close.
+    let downOnBackdrop = false;
+    dialog.addEventListener('mousedown', (e) => {
+      downOnBackdrop = e.target === dialog;
+    });
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      if (downOnBackdrop && e.target === dialog) dialog.close();
+      downOnBackdrop = false;
     });
 
     // Arrow keys page within the current gallery (Esc is handled by <dialog>).
