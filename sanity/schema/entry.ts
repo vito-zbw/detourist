@@ -73,7 +73,13 @@ export const entry = defineType({
           },
         }),
         // inline single image
-        defineArrayMember({ type: 'image', name: 'image', title: 'Image', options: { hotspot: true }, fields: [altField] }),
+        defineArrayMember({
+          type: 'image',
+          name: 'image',
+          title: 'Image',
+          options: { hotspot: true },
+          fields: [altField, defineField({ name: 'caption', title: 'Caption', type: 'string' })],
+        }),
         // coral pull-quote
         defineArrayMember({
           type: 'object',

@@ -81,6 +81,6 @@ const firstNormal = blocks.find(
     );
   }
   if (b._type === 'gallery') return <Gallery heading={b.heading} note={b.note} images={b.images} zoomable />;
-  if (b._type === 'image') return <Polaroid image={b.asset} alt={b.alt} label={b.label} tint={b.tint} zoomable />;
+  if (b._type === 'image') return <Polaroid image={b.asset} alt={b.alt} caption={b.caption} label={b.label} tint={b.tint} zoomable />;
   return null;
 })}

@@ -70,7 +70,7 @@ export type PortableBlock =
   | { _type: 'pullQuote'; text: string }
   | { _type: 'tip'; heading: string; text: string }
   | { _type: 'gallery'; heading?: string; note?: string; images: GalleryImage[] }
-  | { _type: 'image'; asset: SanityImageSource | null; alt: string; label?: string; tint?: SlotTint };
+  | { _type: 'image'; asset: SanityImageSource | null; alt: string; caption?: string; label?: string; tint?: SlotTint };
 
 // ---------- Documents ----------
 
