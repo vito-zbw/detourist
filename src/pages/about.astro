@@ -3,13 +3,12 @@ import Layout from '@/layouts/Layout.astro';
 import '@/styles/pages.css';
 import Polaroid from '@/components/Polaroid.astro';
 import Stamp from '@/components/Stamp.astro';
-import { getCurrentTrip, getEntries, getSiteSettings } from '@/lib/content';
+import { getCurrentTrip, getSiteSettings } from '@/lib/content';
 
 const current = await getCurrentTrip();
-const entries = await getEntries();
 const site = await getSiteSettings();
-const liveEntry = current ? entries.find((e) => e.tripSlug === current.slug) : undefined;
-const currentPlace = liveEntry?.location?.name ?? 'Banff, Alberta';
+// Show the current trip's country everywhere (matches the homepage hero and the
+// "Last stop at" card below). The ?? 'Canada' only fires if there's no trip at all.
 const region = current?.region ?? 'Canada';
 ---
 <Layout title="About — Detourist" active="about" description="Hey, I'm Vito — comp-sci grad student, rookie skater, and the detour-taker behind Detourist.">
@@ -55,7 +54,7 @@ const region = current?.region ?? 'Canada';
         <div class="factcard">
           <h3>The quick facts</h3>
           <div class="facts">
-            <div class="row"><span class="k">Last stop</span><span class="v">{currentPlace} 🍁</span></div>
+            <div class="row"><span class="k">Last stop</span><span class="v">{region} 🍁</span></div>
             <div class="row"><span class="k">Home base</span><span class="v">wherever the charger is</span></div>
             <div class="row"><span class="k">Trips logged</span><span class="v">Malaysia · Singapore · Canada</span></div>
             <div class="row"><span class="k">Camera</span><span class="v">whatever's in my pocket</span></div>
