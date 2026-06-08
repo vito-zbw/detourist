@@ -7,9 +7,4 @@ import { defineConfig } from 'astro/config';
 // Do not add an SSR/on-demand adapter unless that flow is being replaced.
 export default defineConfig({
   site: 'https://detourist.pages.dev',
-  vite: {
-    // maplibre-gl is the only meaningful client dependency; pre-bundle it so
-    // the map island's dev experience is fast.
-    optimizeDeps: { include: ['maplibre-gl'] },
-  },
 });
