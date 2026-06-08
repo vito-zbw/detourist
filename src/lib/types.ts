@@ -104,7 +104,6 @@ export interface Entry {
   coverImage: TravelImage | null;
   /** Tint for the card/cover placeholder slot. */
   coverTint: SlotTint;
-  gallery: GalleryImage[];
   body: PortableBlock[];
   excerpt: string;
   featured: boolean;

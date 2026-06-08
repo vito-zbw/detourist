@@ -80,7 +80,6 @@ interface EntryInput {
   excerpt: string;
   readMins: number;
   featured?: boolean;
-  gallery?: GalleryImage[];
   body: PortableBlock[];
 }
 
@@ -98,7 +97,6 @@ function mkEntry(i: EntryInput): Entry {
     location: i.location,
     coverImage: { asset: null, alt: i.coverLabel, label: i.coverLabel, tint: i.coverTint },
     coverTint: i.coverTint,
-    gallery: i.gallery ?? [],
     body: i.body,
     excerpt: i.excerpt,
     featured: Boolean(i.featured),
@@ -132,7 +130,6 @@ export const seedEntries: Entry[] = [
       "I set three alarms to catch the light hit the water. Turns out the lake didn't care about my schedule, and neither did the moose blocking the trailhead…",
     readMins: 6,
     featured: true,
-    gallery: lakeLouiseGallery,
     body: [
       p("I set three alarms the night before. Not because I'm disciplined — quite the opposite — but because I knew that if I rolled over even once, the light would happen without me and I'd spend the whole rest of the trip pretending I wasn't bitter about it."),
       p("The trailhead was pitch dark and colder than my phone had promised. I'd packed exactly the wrong jacket. Somewhere off to the left, something large and unbothered moved through the trees, and I made the executive decision to walk a little faster and think about it later."),

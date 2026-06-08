@@ -141,7 +141,6 @@ function mapSanityEntry(raw: any): Entry {
     location: raw.location?.name ? { name: raw.location.name } : null,
     coverImage: mapImage(raw.coverImage),
     coverTint: tintForColor(tripColor),
-    gallery: (raw.gallery ?? []).map(mapGalleryImage),
     body,
     excerpt,
     featured: Boolean(raw.featured),

@@ -46,12 +46,6 @@ export const entry = defineType({
       fields: [altField],
     }),
     defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'array',
-      of: [defineArrayMember({ type: 'image', options: { hotspot: true }, fields: [altField] })],
-    }),
-    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',

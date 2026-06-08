@@ -23,7 +23,6 @@ export const ENTRIES_QUERY = /* groq */ `
   featured,
   location{ name },
   coverImage{ ..., "alt": coalesce(alt, "") },
-  gallery[]{ ..., "alt": coalesce(alt, "") },
   body[]{
     ...,
     _type == "gallery" => { ..., images[]{ ..., "alt": coalesce(alt, "") } }
