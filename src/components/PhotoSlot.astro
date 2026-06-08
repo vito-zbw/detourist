@@ -57,7 +57,7 @@ if (image) {
       data-alt={alt}
       aria-label={`Expand photo: ${alt}`}
     >
-      <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />
+      <img class="photo-slot__img" src={src} alt="" loading="lazy" decoding="async" />
     </button>
   ) : (
     src && <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />
