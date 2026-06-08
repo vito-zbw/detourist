@@ -2,6 +2,8 @@
 // A photo slot. When `image` (a Sanity image source) is present it renders an
 // optimised <img> via the Sanity image pipeline; otherwise it falls back to the
 // design's labeled "drop-in" placeholder. Children render as overlays (chips…).
+// When `zoomable` is set and an image is present, the <img> is wrapped in a
+// click-to-expand lightbox trigger (see components/Lightbox.astro).
 import { urlForImage } from '@/lib/sanity';
 import type { SanityImageSource, SlotTint } from '@/lib/types';
 
@@ -14,20 +16,52 @@ interface Props {
   height?: number;
   /** show a small location pin before the placeholder label */
   pin?: boolean;
+  /** when true + an image is present, make the photo a lightbox trigger */
+  zoomable?: boolean;
+  /** handwritten caption shown in the lightbox (zoomable photos only) */
+  caption?: string;
   class?: string;
 }
 
-const { image = null, alt, label, tint, width = 1200, height, pin = false, class: className } = Astro.props;
+const {
+  image = null,
+  alt,
+  label,
+  tint,
+  width = 1200,
+  height,
+  pin = false,
+  zoomable = false,
+  caption,
+  class: className,
+} = Astro.props;
 
 let src: string | undefined;
+let full: string | undefined;
 if (image) {
   let builder = urlForImage(image).width(width).auto('format');
   if (height) builder = builder.height(height).fit('crop');
   src = builder.url();
+  // Larger source for the expanded view — same pipeline call, bigger width.
+  if (zoomable) full = urlForImage(image).width(1800).auto('format').url();
 }
 ---
 <div class:list={['photo-slot', tint && `slot-${tint}`, image && 'photo-slot--filled', className]}>
-  {src && <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />}
+  {src && zoomable && full ? (
+    <button
+      type="button"
+      class="photo-slot__zoom"
+      data-zoomable
+      data-full={full}
+      data-caption={caption ?? ''}
+      data-alt={alt}
+      aria-label={`Expand photo: ${alt}`}
+    >
+      <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />
+    </button>
+  ) : (
+    src && <img class="photo-slot__img" src={src} alt={alt} loading="lazy" decoding="async" />
+  )}
   {!image && label && (
     <span class="photo-slot__label">
       {pin && (

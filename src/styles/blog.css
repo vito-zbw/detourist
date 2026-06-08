@@ -204,6 +204,7 @@ button{font-family:inherit;cursor:pointer;}
   pointer-events:none;
 }
 .photo-slot__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+.photo-slot__zoom{position:absolute;inset:0;width:100%;height:100%;padding:0;margin:0;border:0;background:none;cursor:zoom-in;display:block;z-index:2;}
 .photo-slot--filled{background:var(--plum);}
 .photo-slot--filled::before{display:none;}
 .photo-slot__label{
