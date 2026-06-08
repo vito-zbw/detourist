@@ -4,6 +4,7 @@ import '@/styles/pages.css';
 import PhotoSlot from '@/components/PhotoSlot.astro';
 import EntryCard from '@/components/EntryCard.astro';
 import PortableText from '@/components/PortableText.astro';
+import Lightbox from '@/components/Lightbox.astro';
 import {
   getEntries,
   getTrips,
@@ -139,4 +140,6 @@ const dayInTrip = tripStart
       </div>
     </section>
   )}
+
+  <Lightbox />
 </Layout>
