@@ -15,7 +15,9 @@
     "import:validate": "tsx scripts/import/validate.ts",
     "import:load:dry": "tsx scripts/import/load.ts --dry-run",
     "import:load": "tsx scripts/import/load.ts",
-    "upload:site": "tsx scripts/site/upload-site.ts"
+    "upload:site": "tsx scripts/site/upload-site.ts",
+    "studio:dev": "sanity dev",
+    "studio:deploy": "sanity deploy"
   },
   "dependencies": {
     "@sanity/client": "^6.22.5",
