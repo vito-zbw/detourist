@@ -16,6 +16,8 @@ interface Props {
   pin?: PinColor;
   /** show the little location icon inside the placeholder label */
   labelPin?: boolean;
+  /** when true + an image is present, make the photo a lightbox trigger */
+  zoomable?: boolean;
   wide?: boolean;
   width?: number;
   height?: number;
@@ -33,6 +35,7 @@ const {
   tapeStyle,
   pin,
   labelPin = false,
+  zoomable = false,
   wide = false,
   width,
   height,
@@ -44,6 +47,16 @@ const tapeS = tapeStyle ?? 'top:-12px;left:32%;transform:rotate(-5deg);';
 <div class:list={['polaroid', wide && 'polaroid--wide', tilt && `tilt-${tilt}`, className]}>
   {tape && <span class:list={['tape', `tape--${tape}`]} style={tapeS}></span>}
   {pin && <span class:list={['pin', `pin--${pin}`]} style="top:-11px;left:50%;transform:translateX(-50%);"></span>}
-  <PhotoSlot image={image} alt={alt} label={label} tint={tint} width={width} height={height} pin={labelPin} />
+  <PhotoSlot
+    image={image}
+    alt={alt}
+    label={label}
+    tint={tint}
+    width={width}
+    height={height}
+    pin={labelPin}
+    zoomable={zoomable}
+    caption={caption ?? label}
+  />
   {caption && <div class="polaroid__cap">{caption}</div>}
 </div>

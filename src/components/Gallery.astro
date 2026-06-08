@@ -9,9 +9,11 @@ interface Props {
   heading?: string;
   note?: string;
   images: GalleryImage[];
+  /** when true, each photo becomes a lightbox trigger */
+  zoomable?: boolean;
 }
 
-const { heading, note, images } = Astro.props;
+const { heading, note, images, zoomable = false } = Astro.props;
 
 const TILTS = ['l', 'r', 'r', 'l', 'l', 'r'] as const;
 const TINTS = ['teal', 'gold', 'coral', 'magenta', 'sky', 'gold'] as const;
@@ -34,6 +36,7 @@ const TINTS = ['teal', 'gold', 'coral', 'magenta', 'sky', 'gold'] as const;
         tilt={img.tilt ?? TILTS[i % TILTS.length]}
         tape={img.tape}
         pin={img.pin}
+        zoomable={zoomable}
       />
     ))}
   </div>
