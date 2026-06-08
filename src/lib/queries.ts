@@ -21,7 +21,7 @@ export const ENTRIES_QUERY = /* groq */ `
   date,
   excerpt,
   featured,
-  location{ name, "lat": geopoint.lat, "lng": geopoint.lng },
+  location{ name },
   coverImage{ ..., "alt": coalesce(alt, "") },
   gallery[]{ ..., "alt": coalesce(alt, "") },
   body[]{

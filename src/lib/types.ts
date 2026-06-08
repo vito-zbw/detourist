@@ -100,7 +100,7 @@ export interface Entry {
   /** lowercased trip key for the journey filter: malaysia | singapore | canada */
   tripKey: string;
   date: string; // ISO datetime
-  location: { name: string; lat: number; lng: number } | null;
+  location: { name: string } | null;
   coverImage: TravelImage | null;
   /** Tint for the card/cover placeholder slot. */
   coverTint: SlotTint;

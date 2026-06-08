@@ -138,10 +138,7 @@ function mapSanityEntry(raw: any): Entry {
     tripColor,
     tripKey: (raw.tripRegion ?? raw.tripSlug ?? '').toLowerCase(),
     date: raw.date,
-    location:
-      raw.location && raw.location.lat != null && raw.location.lng != null
-        ? { name: raw.location.name ?? '', lat: raw.location.lat, lng: raw.location.lng }
-        : null,
+    location: raw.location?.name ? { name: raw.location.name } : null,
     coverImage: mapImage(raw.coverImage),
     coverTint: tintForColor(tripColor),
     gallery: (raw.gallery ?? []).map(mapGalleryImage),

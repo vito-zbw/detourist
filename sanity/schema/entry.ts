@@ -33,10 +33,9 @@ export const entry = defineType({
       name: 'location',
       title: 'Location',
       type: 'object',
-      description: 'Feeds the journey map.',
+      description: 'Where this entry took place — just the place name. Shown on the entry and the homepage hero.',
       fields: [
         defineField({ name: 'name', title: 'Place name', type: 'string' }),
-        defineField({ name: 'geopoint', title: 'Map point', type: 'geopoint' }),
       ],
     }),
     defineField({
