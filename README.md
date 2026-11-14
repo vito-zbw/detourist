@@ -1,62 +1,119 @@
 # Detourist
 
-A vibrant, handcrafted personal travel blog — visual-forward, scrapbook
-texture, strong first-person voice. Built to publish new entries **from a
-phone while traveling**.
+**[Explore the live website →](https://detourist.pages.dev/)**
 
-- **Astro** (static, no SSR) · **Sanity** (headless CMS) · **MapLibre GL JS +
-  OpenFreeMap** (custom-styled journey map) · **Cloudflare Pages** · TypeScript.
+A responsive personal travel journal built for publishing stories and photos from a phone while travelling. Detourist combines a scrapbook-inspired design with a content-driven publishing workflow: new trips and entries feed the site's pages, navigation, and travel summaries automatically on rebuild.
 
-See [`CLAUDE.md`](./CLAUDE.md) for the full architecture, content model, and
-deployment notes.
+**Astro · TypeScript · Sanity · D3 · Cloudflare Pages**
 
-## Quick start
+## Highlights
+
+- **Content-driven updates:** Homepage trip counts and related travel summaries are derived from content, so adding a trip updates them on rebuild without manual page edits.
+- **Publish from a phone:** Write and publish in Sanity Studio; a publish webhook triggers a Cloudflare Pages rebuild and deployment.
+- **Explore by destination:** Browse stories by trip, with linked country selections and shareable trip-filter URLs.
+- **Lightweight world map:** Generate a country map at build time using D3 and TopoJSON; the browser receives SVG rather than a full mapping library.
+- **Photo-first storytelling:** Rich-text entries, cover images, and galleries use Sanity's image pipeline for resizing and cropping.
+- **Credential-free preview:** Bundled sample content lets developers explore the project without setting up a CMS account.
+
+## Why this architecture?
+
+The goal is to keep publishing convenient while serving a fully static site.
+
+| Decision | Purpose |
+| --- | --- |
+| Astro build-time rendering | Serve prebuilt pages without an application server. |
+| Sanity headless CMS | Separate content authoring from code changes and support mobile publishing. |
+| Publish-triggered deployments | Refresh generated pages and content-derived information after publishing. |
+| Build-time SVG map | Keep map-generation dependencies out of the browser bundle. |
+| Shared content access layer | Keep pages independent of whether content comes from Sanity or local samples. |
+| TypeScript | Define shared types for trips, entries, and content access. |
+
+### Publishing flow
+
+1. Create or update a trip or entry in Sanity Studio.
+2. Publish the document.
+3. Sanity calls the configured Cloudflare Pages Deploy Hook.
+4. Astro fetches the content and regenerates the site.
+5. Cloudflare Pages serves the updated pages.
+
+Updates appear after deployment completes; the site does not require live CMS requests from visitors.
+
+## Explore the site
+
+| Route | Features |
+| --- | --- |
+| `/` | Current-trip hero, travel summaries, featured entries, trip cards, and map teaser. |
+| `/journey` | World map, trip filters, and entry browsing. |
+| `/entries/[slug]` | Individual stories with rich text, photography, and related entries. |
+| `/about` | Background and introduction to the journal. |
+
+## Run locally
+
+Install Node.js and npm, then:
 
 ```bash
+git clone https://github.com/vito-zbw/detourist.git
+cd detourist
 npm install
-npm run dev      # local dev server
-npm run build    # static build -> dist/
-npm run preview  # preview the build
-npm run check    # astro type-check
+npm run dev
 ```
 
-The site builds with **no configuration**: with no Sanity project set, it uses
-the bundled seed content in `src/lib/seed.ts`, so `npm run dev` / `npm run
-build` work out of the box.
+With no `SANITY_PROJECT_ID` configured, the site uses bundled content from `src/lib/seed.ts`. No CMS credentials are required for the sample-content preview.
 
-## Content: Sanity or seed
+### Commands
 
-`src/lib/content.ts` is the single content access layer. It reads from Sanity
-when `SANITY_PROJECT_ID` is set (see [`.env.example`](./.env.example)), and
-otherwise falls back to the seed. Pages/components never touch Sanity directly.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local development server. |
+| `npm run check` | Run Astro and TypeScript checks. |
+| `npm test` | Run the Vitest suite. |
+| `npm run build` | Generate the production site in `dist/`. |
+| `npm run preview` | Preview the production build locally. |
+| `npm run studio:dev` | Start Sanity Studio with the required project configuration. |
 
-To run the author-facing Studio (matching schemas in `sanity/schema/`):
+## Connect Sanity
 
-```bash
-npm i sanity @sanity/vision react react-dom
-SANITY_STUDIO_PROJECT_ID=<id> SANITY_STUDIO_DATASET=production npx sanity dev
+Use `.env.example` as the configuration reference. Configure these variables for your own Sanity project:
+
+```dotenv
+SANITY_PROJECT_ID=your-project-id
+SANITY_DATASET=production
+# Only required for a private dataset:
+SANITY_API_READ_TOKEN=your-read-token
 ```
 
-## Pages
+Keep credentials in local environment files or hosting settings; never commit them.
 
-- `/` — "Currently in {trip}" hero, featured entries, browse-by-trip, map teaser
-- `/journey` — full journey map (`#map`) + browse-by-trip filter + all entries
-- `/entries/[slug]` — single entry (cover, Portable Text body, gallery, related)
-- `/about` — about / start here
+The content model has two main document types:
 
-## Structure
+- **Trip:** Name, slug, region, dates, cover image, and summary. A trip without an end date represents the current trip.
+- **Entry:** Title, trip reference, date, location, cover image, gallery, rich-text body, excerpt, and featured status.
 
-```
+`src/lib/content.ts` provides the shared content access layer. Pages and components use that layer rather than querying Sanity directly.
+
+## Deploy to Cloudflare Pages
+
+1. Connect the repository to Cloudflare Pages.
+2. Select the Astro framework preset.
+3. Set the build command to `npm run build` and output directory to `dist`.
+4. Add the Sanity environment variables.
+5. Create a Cloudflare Pages Deploy Hook and configure a Sanity webhook to call it when content is published.
+
+The output is fully static; no server-side rendering adapter is required.
+
+## Project structure
+
+```text
 src/
-  components/   PhotoSlot, Polaroid, EntryCard, Stamp, PortableText,
-                JourneyMap (MapLibre island), Nav, Footer
-  layouts/      Layout.astro
-  lib/          content.ts (source switch) · sanity.ts · queries.ts ·
-                seed.ts · types.ts
-  pages/        index · journey · entries/[slug] · about
-  styles/       blog.css (design system) · home.css · pages.css
-sanity/         Studio schemas (trip, entry)
+  components/   Reusable UI components and build-time SVG map
+  layouts/      Shared page layout
+  lib/          Content access, queries, types, and sample content
+  pages/        Home, journey, entry, and about routes
+  styles/       Shared design system and page styles
+sanity/         Content schemas and Studio configuration
+scripts/        Content import and site utilities
 ```
 
-Images flow through Sanity's image pipeline (`PhotoSlot`); every image has alt
-text. Where no image exists yet, the design's labeled placeholder slot renders.
+## Development approach
+
+Built with AI-assisted development tools, including Claude Code. The project combines content modelling, static site generation, responsive UI implementation, and deployment configuration around a practical publishing need.
