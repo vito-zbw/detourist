@@ -2,6 +2,8 @@
 
 **[Explore the live website →](https://detourist.pages.dev/)**
 
+<img width="1512" height="727" alt="image" src="https://github.com/user-attachments/assets/c658132b-6e07-4637-8196-b5e708193bf6" />
+
 A responsive personal travel journal built for publishing stories and photos from a phone while travelling. Detourist combines a scrapbook-inspired design with a content-driven publishing workflow: new trips and entries feed the site's pages, navigation, and travel summaries automatically on rebuild.
 
 **Astro · TypeScript · Sanity · D3 · Cloudflare Pages**
