@@ -49,7 +49,7 @@ export const seedTrips: Trip[] = [
     name: 'Canada',
     slug: 'canada',
     region: 'Canada',
-    startDate: '2026-05-25',
+    startDate: '2026-07-08',
     endDate: null, // ongoing — drives the "Last stop at Canada" hero
     summary:
       'An ongoing, slightly chaotic loop through the Rockies and the West Coast — written from the road in real time.',
